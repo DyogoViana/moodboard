@@ -1,0 +1,9 @@
+app
+btn-export-image
+btn-import
+panel-color
+pan-hint
+ruler-left
+ruler-top
+toolbar
+workspace
