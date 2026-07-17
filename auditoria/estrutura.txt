@@ -1,0 +1,52 @@
+﻿Listagem de caminhos de pasta
+O n·mero de sÚrie do volume Ú 0000003D 7294:DA31
+C:.
+ª   index.html
+ª   manifest.json
+ª   README.md
+ª   sw.js
+ª   VERSION.txt
+ª   
++---auditoria
+ª       botoes.md
+ª       estrutura.txt
+ª       ids.txt
+ª       listeners.txt
+ª       onclick.txt
+ª       
++---css
+ª       style.css
+ª       
++---docs
+ª       arquitetura.md
+ª       backlog.md
+ª       bugs.md
+ª       changelog.md
+ª       decisoes.md
+ª       roadmap.md
+ª       
++---icons
+ª       icon-192x192.png
+ª       icon-512x512.png
+ª       
++---js
+ª       app.js
+ª       backup.js
+ª       canvas.js
+ª       color.js
+ª       db.js
+ª       diagnostics.js
+ª       images.js
+ª       state.js
+ª       theme.js
+ª       trash.js
+ª       tree.js
+ª       
++---scripts
+        atualizar.ps1
+        auditoria-projeto.ps1
+        moodboard.py
+        organizar-pasta-mae.ps1
+        organizar-projeto.ps1
+        remover-duplicata.ps1
+        

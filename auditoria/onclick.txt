@@ -1,0 +1,12 @@
+﻿
+index.html:56:        <button 
+class="btn-ghost" 
+onclick="toggleThumbnails()" 
+title="Alternar miniaturas na árvore">
+index.html:99:          <button 
+class="btn-tool" id="btn-export-image" 
+title="Exportar este board como PNG" 
+onclick="window.exportBoard()">🖼 
+Exportar board</button>
+
+

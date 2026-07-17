@@ -1,0 +1,198 @@
+﻿
+js\app.js:10:  
+collapseBtn.addEventListener('click', () 
+=> {
+js\app.js:17:    
+tab.addEventListener('click', () => {
+js\app.js:27:  
+boardTitle.addEventListener('click', () 
+=> {
+js\app.js:33:  
+boardTitle.addEventListener('blur', () => 
+{
+js\app.js:44:  
+boardTitle.addEventListener('keydown', 
+(e) => {
+js\app.js:48:  document.getElementById('bt
+n-new-folder').addEventListener('click', 
+() => TREE.createFolder(null));
+js\app.js:49:  document.getElementById('bt
+n-new-board').addEventListener('click', 
+() => TREE.createBoard(null));
+js\app.js:50:  document.getElementById('bt
+n-theme').addEventListener('click', () => 
+THEME.toggle());
+js\app.js:76:  document.getElementById('bt
+n-save').addEventListener('click', 
+saveBoardNow);
+js\app.js:77:  
+window.addEventListener('keydown', (e) => 
+{
+js\app.js:85:  document.getElementById('bt
+n-export').addEventListener('click', 
+async () => {
+js\app.js:90:  document.getElementById('im
+port-input').addEventListener('change', 
+async (e) => {
+js\app.js:120:    
+window.addEventListener('load', () => {
+js\app.js:131:    document.addEventListene
+r('DOMContentLoaded', () => {
+js\app.js:161:        
+moreBtn.addEventListener('click', (e) => {
+js\app.js:165:        
+document.addEventListener('click', () => 
+moreMenu.classList.remove('open'));
+js\canvas.js:134:  
+window.addEventListener('keydown', (e) => 
+{
+js\canvas.js:150:  
+window.addEventListener('keyup', (e) => {
+js\canvas.js:162:  
+panModeBtn.addEventListener('click', () 
+=> setPanMode(!panMode));
+js\canvas.js:163:  
+zoomModeBtn.addEventListener('click', () 
+=> setZoomMode(!zoomMode));
+js\canvas.js:166:  
+viewport.addEventListener('contextmenu', 
+(e) => e.preventDefault());
+js\canvas.js:169:  
+viewport.addEventListener('pointerdown', 
+(e) => {
+js\canvas.js:199:  
+viewport.addEventListener('pointermove', 
+(e) => {
+js\canvas.js:220:  
+viewport.addEventListener('pointerup', 
+endPointerInteraction);
+js\canvas.js:221:  viewport.addEventListen
+er('pointercancel', 
+endPointerInteraction);
+js\canvas.js:226:  
+viewport.addEventListener('wheel', (e) => 
+{
+js\canvas.js:239:  document.getElementById
+('btn-zoom-in').addEventListener('click', 
+() => zoomBy(1.2));
+js\canvas.js:240:  document.getElementById
+('btn-zoom-out').addEventListener('click',
+ () => zoomBy(1 / 1.2));
+js\canvas.js:241:  document.getElementById
+('btn-reset-view').addEventListener('click
+', reset);
+js\color.js:75:        
+btnEyeDropper.addEventListener('click', 
+handleEyeDropper);
+js\color.js:83:    if (colorWheelInput) 
+colorWheelInput.addEventListener('input', 
+handleWheelInput);
+js\diagnostics.js:84:      
+badge.addEventListener('click', () => {
+js\diagnostics.js:117:    if (exportBtn) 
+exportBtn.addEventListener('click', 
+exportDiagnostics);
+js\diagnostics.js:142:window.addEventListe
+ner('load', () => 
+setTimeout(DIAGNOSTICS.run, 400));
+js\images.js:146:    
+el.addEventListener('pointerdown', (e) => 
+{
+js\images.js:170:    
+el.addEventListener('pointermove', (e) => 
+{
+js\images.js:195:    
+el.addEventListener('pointerup', endDrag);
+js\images.js:196:    
+el.addEventListener('pointercancel', 
+endDrag);
+js\images.js:204:    
+handle.addEventListener('pointerdown', 
+(e) => {
+js\images.js:213:    
+handle.addEventListener('pointermove', 
+(e) => {
+js\images.js:232:    
+handle.addEventListener('pointerup', 
+endResize);
+js\images.js:233:    
+handle.addEventListener('pointercancel', 
+endResize);
+js\images.js:241:    
+handle.addEventListener('pointerdown', 
+(e) => {
+js\images.js:250:    
+handle.addEventListener('pointermove', 
+(e) => {
+js\images.js:263:    
+handle.addEventListener('pointerup', 
+endRotate);
+js\images.js:264:    
+handle.addEventListener('pointercancel', 
+endRotate);
+js\images.js:287:  
+window.addEventListener('keydown', (e) => 
+{
+js\images.js:297:  document.getElementById
+('btn-delete').addEventListener('click', 
+deleteSelected);
+js\images.js:298:  document.getElementById
+('btn-front').addEventListener('click', 
+() => {
+js\images.js:301:  document.getElementById
+('btn-back').addEventListener('click', () 
+=> {
+js\images.js:320:  if (btnFlipH) 
+btnFlipH.addEventListener('click', () => 
+flipSelected('h'));
+js\images.js:321:  if (btnFlipV) 
+btnFlipV.addEventListener('click', () => 
+flipSelected('v'));
+js\images.js:358:  if (btnAlign) 
+btnAlign.addEventListener('click', 
+alignAndUniformSize);
+js\images.js:467:  
+fileInput.addEventListener('change', 
+async (e) => {
+js\images.js:476:  
+document.addEventListener('paste', async 
+(e) => {
+js\images.js:512:    
+addUrlBtn.addEventListener('click', async 
+() => {
+js\images.js:538:    
+txtInput.addEventListener('change', async 
+(e) => {
+js\trash.js:97:    
+b.addEventListener('click', handler);
+js\trash.js:117:  document.getElementById(
+'btn-empty-trash').addEventListener('click
+', emptyTrash);
+js\tree.js:84:    
+row.addEventListener('click', (e) => {
+js\tree.js:111:    
+b.addEventListener('click', (e) => { 
+e.stopPropagation(); handler(); });
+js\tree.js:176:    
+labelEl.addEventListener('blur', commit);
+js\tree.js:177:    
+labelEl.addEventListener('keydown', 
+onKey);
+js\tree.js:229:    
+row.addEventListener('dragstart', (e) => {
+js\tree.js:233:    
+row.addEventListener('dragover', (e) => {
+js\tree.js:240:    
+row.addEventListener('dragleave', () => 
+row.classList.remove('drop-target'));
+js\tree.js:241:    
+row.addEventListener('drop', async (e) => 
+{
+js\tree.js:256:  
+root.addEventListener('dragover', (e) => 
+{ if (dragNodeId) e.preventDefault(); });
+js\tree.js:257:  
+root.addEventListener('drop', async (e) 
+=> {
+
+

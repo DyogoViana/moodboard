@@ -1,0 +1,12 @@
+﻿
+js\diagnostics.js:14:   bug comes right 
+back on reload) or, if wired to actually 
+persist
+js\diagnostics.js:68:          
+`${regs.length} service workers 
+registrados ao mesmo tempo — favorece 
+cache antigo grudado. DevTools → 
+Application → Service Workers → 
+Unregister todos, depois recarregar.`);
+
+
