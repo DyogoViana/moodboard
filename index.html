@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moodboard Studio</title>
+<link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="theme-dark">
+
+  <div id="app">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside id="sidebar">
+      <div class="brand">
+        <span class="brand-mark">M</span>
+        <span class="brand-name">Moodboard Studio</span>
+      </div>
+
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-panel="tree">Projetos</button>
+        <button class="panel-tab" data-panel="trash">Lixeira</button>
+        <button class="panel-tab" data-panel="color">Cores</button>
+      </div>
+
+      <!-- Projects panel -->
+      <div class="panel" id="panel-tree">
+        <div class="panel-actions">
+          <button class="btn-chip" id="btn-new-folder">+ Pasta</button>
+          <button class="btn-chip" id="btn-new-board">+ Board</button>
+        </div>
+        <div id="tree-root" class="tree-root"></div>
+      </div>
+
+      <!-- Trash panel -->
+      <div class="panel hidden" id="panel-trash">
+        <div class="panel-actions">
+          <span class="panel-hint">Itens ficam aqui até serem esvaziados</span>
+          <button class="btn-chip btn-chip-danger" id="btn-empty-trash">Esvaziar</button>
+        </div>
+        <div id="trash-list" class="trash-list"></div>
+      </div>
+
+      <!-- Color panel -->
+      <div class="panel hidden" id="panel-color">
+        <div class="panel-actions">
+          <button class="btn-chip" id="btn-eye-dropper">💧 Pingar cor</button>
+          <input type="color" id="color-wheel-input" value="#B0402E" title="Escolher cor">
+        </div>
+        <div class="color-preview" id="color-preview">#B0402E</div>
+        <div class="palette-list" id="palette-list"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn-ghost" onclick="toggleThumbnails()" title="Alternar miniaturas na árvore">
+          <span class="theme-icon">🖼</span> Miniaturas
+        </button>
+        <button id="btn-export" class="btn-ghost" title="Baixar backup completo (todas as pastas, boards e imagens)">
+          <span class="theme-icon">⬇</span> Exportar backup
+        </button>
+        <label id="btn-import" class="btn-ghost" title="Restaurar de um arquivo de backup (soma ao que já existe, não apaga nada)">
+          <span class="theme-icon">⬆</span> Importar backup
+          <input type="file" id="import-input" accept="application/json,.json">
+        </label>
+        <button id="btn-theme" class="btn-ghost" title="Alternar tema">
+          <span class="theme-icon">◐</span> <span id="theme-label">Modo claro</span>
+        </button>
+      </div>
+    </aside>
+
+    <button id="btn-collapse-sidebar" class="collapse-tab" title="Recolher menu">‹</button>
+
+    <!-- ============ WORKSPACE ============ -->
+    <main id="workspace">
+
+      <header id="toolbar">
+        <div class="toolbar-group toolbar-left">
+          <span class="board-title" id="board-title" contenteditable="false" spellcheck="false">Selecione ou crie um board</span>
+        </div>
+
+        <div class="toolbar-group toolbar-tools hidden" id="tools-container">
+          <button class="btn-tool btn-tool-primary" id="btn-save" title="Salvar board (Ctrl+S)">💾 Salvar</button>
+
+          <span class="divider"></span>
+
+          <label class="btn-tool" title="Adicionar imagens do computador">
+            Adicionar imagens
+            <input type="file" id="file-input" multiple accept="image/*">
+          </label>
+          <button class="btn-tool" id="btn-add-url" title="Adicionar por link de imagem direto ou colar HTML de um board do Pinterest">🔗 Colar link</button>
+          <label class="btn-tool" title="Importar lista de links de um arquivo .txt (um link por linha)">
+            📄 Lista de links
+            <input type="file" id="links-txt-input" accept=".txt,text/plain">
+          </label>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool" id="btn-export-image" title="Exportar este board como PNG" onclick="window.exportBoard()">🖼 Exportar board</button>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool" id="btn-front" title="Trazer para frente">Trazer p/ frente</button>
+          <button class="btn-tool" id="btn-back" title="Enviar para trás">Enviar p/ trás</button>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool" id="btn-flip-h" title="Espelhar horizontalmente">↔ Espelhar H</button>
+          <button class="btn-tool" id="btn-flip-v" title="Espelhar verticalmente">↕ Espelhar V</button>
+          <button class="btn-tool" id="btn-align-uniform" title="Alinhar e uniformizar tamanho das imagens selecionadas (2+)">▦ Alinhar/Uniformizar</button>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool btn-tool-danger" id="btn-delete" title="Mover para lixeira (Del)">Excluir</button>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool" id="btn-pan-mode" title="Ferramenta Mão — arrastar para navegar (atalho: H)">✋ Mover</button>
+          <button class="btn-tool" id="btn-zoom-mode" title="Ferramenta Zoom — clique para ampliar, Alt+clique para reduzir, arraste para enquadrar (atalho: Z)">🔍 Zoom</button>
+
+          <span class="divider"></span>
+
+          <button class="btn-tool" id="btn-zoom-out" title="Reduzir zoom">−</button>
+          <span id="zoom-level" class="zoom-readout">100%</span>
+          <button class="btn-tool" id="btn-zoom-in" title="Aumentar zoom">+</button>
+          <button class="btn-tool" id="btn-reset-view" title="Recentralizar na seleção (ou no palco todo, se nada estiver selecionado)">Recentralizar</button>
+        </div>
+
+        <div class="toolbar-group toolbar-right"></div>
+      </header>
+
+      <div id="viewport">
+        <div id="ruler-top" class="ruler ruler-top"></div>
+        <div id="ruler-left" class="ruler ruler-left"></div>
+
+        <div id="canvas">
+          <div id="marquee" class="marquee hidden"></div>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+          <p class="empty-title">Nenhum board aberto</p>
+          <p class="empty-sub">Crie uma pasta e um board na barra lateral para começar a montar seu moodboard.</p>
+        </div>
+
+        <div id="toast" class="toast hidden">Board salvo</div>
+
+        <div id="pan-hint" class="pan-hint">V Selecionar · H Mover · Z Zoom · Ctrl+V cola imagem, link ou HTML do Pinterest</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/images.js"></script>
+  <script src="js/tree.js"></script>
+  <script src="js/trash.js"></script>
+  <script src="js/color.js"></script>
+  <script src="js/backup.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/diagnostics.js"></script>
+</body>
+</html>
