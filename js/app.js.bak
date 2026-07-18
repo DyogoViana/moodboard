@@ -19,7 +19,6 @@
       tab.classList.add('active');
       document.getElementById('panel-tree').classList.toggle('hidden', tab.dataset.panel !== 'tree');
       document.getElementById('panel-trash').classList.toggle('hidden', tab.dataset.panel !== 'trash');
-      document.getElementById('panel-color').classList.toggle('hidden', tab.dataset.panel !== 'color');
       if (tab.dataset.panel === 'trash') TRASH.refresh();
     });
   });

@@ -1,0 +1,15 @@
+Data: 2026-07-18 13:53:07.124100
+
+[CRIADO] tools/__init__.py
+[MOVIDO] mia.py
+[MOVIDO] mia_deadcode.py
+[MOVIDO] mia_doctor.py
+[MOVIDO] mia_flowcheck.py
+[MOVIDO] mia_missing_ids.py
+[MOVIDO] mia_panel_audit.py
+[MOVIDO] mia_panel_fix.py
+[OK] moodboard.py já existe
+
+MIA movidos: 7
+Etapa 01 finalizada.
+

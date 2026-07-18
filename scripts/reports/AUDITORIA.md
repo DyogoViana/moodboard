@@ -1,0 +1,90 @@
+# MIA AUDITORIA
+
+Data: 2026-07-17 18:37:43.934390
+
+---
+
+## project
+
+- **status**: ERROR
+- **module**: project
+
+## architecture
+
+- **status**: ERROR
+- **module**: architecture
+
+## dependency
+
+- **status**: ERROR
+- **module**: dependency
+
+## flow
+
+- **status**: ERROR
+- **module**: flow
+
+## html
+
+- **status**: ERROR
+- **module**: html
+
+## css
+
+- **status**: ERROR
+- **module**: css
+
+## javascript
+
+- **status**: ERROR
+- **module**: javascript
+
+## ids
+
+- **status**: ERROR
+- **module**: ids
+
+## events
+
+- **status**: ERROR
+- **module**: events
+
+## state
+
+- **status**: ERROR
+- **module**: state
+
+## storage
+
+- **status**: ERROR
+- **module**: storage
+
+## exports
+
+- **status**: ERROR
+- **module**: exports
+
+## globals
+
+- **status**: ERROR
+- **module**: globals
+
+## panels
+
+- **status**: ERROR
+- **module**: panels
+
+## performance
+
+- **status**: ERROR
+- **module**: performance
+
+## deadcode
+
+- **status**: ERROR
+- **module**: deadcode
+
+## duplication
+
+- **status**: ERROR
+- **module**: duplication

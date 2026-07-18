@@ -1,0 +1,24 @@
+======================================================================
+MoodboardStudio
+Migração - Etapa 01
+Data: 2026-07-18 13:57:12
+Projeto: C:\Users\User\OneDrive\Aplicativos\_Moodboard\MoodboardStudio
+======================================================================
+[OK] scripts/tools/__init__.py
+[IGNORADO] mia.py não encontrado
+[IGNORADO] mia_deadcode.py não encontrado
+[IGNORADO] mia_doctor.py não encontrado
+[IGNORADO] mia_flowcheck.py não encontrado
+[IGNORADO] mia_missing_ids.py não encontrado
+[IGNORADO] mia_panel_audit.py não encontrado
+[IGNORADO] mia_panel_fix.py não encontrado
+
+======================================================================
+RESUMO
+======================================================================
+Arquivos previstos : 7
+Movidos            : 0
+Ignorados          : 7
+Erros              : 0
+
+STATUS: OK

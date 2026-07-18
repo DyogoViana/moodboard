@@ -1,0 +1,368 @@
+{
+    "summary": {
+        "application": "MIA",
+        "version": "0.1.0",
+        "project_root": "C:\\Users\\User\\OneDrive\\Aplicativos\\_Moodboard\\MoodboardStudio",
+        "directories": 7,
+        "files": 54,
+        "size_bytes": 264861,
+        "size_human": "258.65 KB"
+    },
+    "system": {
+        "platform": "Windows",
+        "release": "11",
+        "python": "3.12.10",
+        "hostname": "Pandora",
+        "processor": "Intel64 Family 6 Model 142 Stepping 10, GenuineIntel",
+        "timestamp": "2026-07-18T16:35:45Z"
+    },
+    "directories": [
+        {
+            "path": "."
+        },
+        {
+            "path": "auditoria"
+        },
+        {
+            "path": "css"
+        },
+        {
+            "path": "docs"
+        },
+        {
+            "path": "icons"
+        },
+        {
+            "path": "js"
+        },
+        {
+            "path": "scripts"
+        }
+    ],
+    "files": [
+        {
+            "path": "auditoria.zip",
+            "extension": ".zip",
+            "size": 12066,
+            "modified": "2026-07-17T17:05:16.684732"
+        },
+        {
+            "path": "index.html",
+            "extension": ".html",
+            "size": 7121,
+            "modified": "2026-07-17T18:30:58"
+        },
+        {
+            "path": "manifest.json",
+            "extension": ".json",
+            "size": 350,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "README.md",
+            "extension": ".md",
+            "size": 5794,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "sw.js",
+            "extension": ".js",
+            "size": 1527,
+            "modified": "2026-07-15T19:57:26"
+        },
+        {
+            "path": "VERSION.txt",
+            "extension": ".txt",
+            "size": 5,
+            "modified": "2026-07-17T18:35:46"
+        },
+        {
+            "path": "auditoria\\arquivos.txt",
+            "extension": ".txt",
+            "size": 7766,
+            "modified": "2026-07-17T17:22:26.984986"
+        },
+        {
+            "path": "auditoria\\branches.txt",
+            "extension": ".txt",
+            "size": 70,
+            "modified": "2026-07-17T17:22:26.869747"
+        },
+        {
+            "path": "auditoria\\classes.txt",
+            "extension": ".txt",
+            "size": 964,
+            "modified": "2026-07-17T17:22:27.037920"
+        },
+        {
+            "path": "auditoria\\dataset.txt",
+            "extension": ".txt",
+            "size": 818,
+            "modified": "2026-07-17T17:22:27.265472"
+        },
+        {
+            "path": "auditoria\\funcoes.txt",
+            "extension": ".txt",
+            "size": 37226,
+            "modified": "2026-07-17T17:22:27.131188"
+        },
+        {
+            "path": "auditoria\\getelementbyid.txt",
+            "extension": ".txt",
+            "size": 10634,
+            "modified": "2026-07-17T17:22:27.258105"
+        },
+        {
+            "path": "auditoria\\git-log.txt",
+            "extension": ".txt",
+            "size": 1354,
+            "modified": "2026-07-17T17:22:26.970556"
+        },
+        {
+            "path": "auditoria\\git-status.txt",
+            "extension": ".txt",
+            "size": 1860,
+            "modified": "2026-07-17T17:22:26.799857"
+        },
+        {
+            "path": "auditoria\\globals.txt",
+            "extension": ".txt",
+            "size": 2234,
+            "modified": "2026-07-17T17:22:27.287581"
+        },
+        {
+            "path": "auditoria\\ids.txt",
+            "extension": ".txt",
+            "size": 1266,
+            "modified": "2026-07-17T17:22:27.019113"
+        },
+        {
+            "path": "auditoria\\listeners.txt",
+            "extension": ".txt",
+            "size": 10892,
+            "modified": "2026-07-17T17:22:27.200502"
+        },
+        {
+            "path": "auditoria\\onclick.txt",
+            "extension": ".txt",
+            "size": 582,
+            "modified": "2026-07-17T17:22:27.273934"
+        },
+        {
+            "path": "auditoria\\queryselector.txt",
+            "extension": ".txt",
+            "size": 1888,
+            "modified": "2026-07-17T17:22:27.216999"
+        },
+        {
+            "path": "css\\style.css",
+            "extension": ".css",
+            "size": 15812,
+            "modified": "2026-07-17T18:35:38"
+        },
+        {
+            "path": "docs\\arquitetura.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.209742"
+        },
+        {
+            "path": "docs\\backlog.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.211249"
+        },
+        {
+            "path": "docs\\bugs.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.212261"
+        },
+        {
+            "path": "docs\\changelog.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.213258"
+        },
+        {
+            "path": "docs\\decisoes.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.214262"
+        },
+        {
+            "path": "docs\\PROJETO_RULES.md",
+            "extension": ".md",
+            "size": 1865,
+            "modified": "2026-07-17T18:42:07.398134"
+        },
+        {
+            "path": "docs\\roadmap.md",
+            "extension": ".md",
+            "size": 0,
+            "modified": "2026-07-17T17:01:48.215294"
+        },
+        {
+            "path": "icons\\icon-192x192.png",
+            "extension": ".png",
+            "size": 2990,
+            "modified": "2026-07-14T10:57:46"
+        },
+        {
+            "path": "icons\\icon-512x512.png",
+            "extension": ".png",
+            "size": 8384,
+            "modified": "2026-07-14T10:57:46"
+        },
+        {
+            "path": "js\\app.js",
+            "extension": ".js",
+            "size": 8058,
+            "modified": "2026-07-17T17:38:58.495043"
+        },
+        {
+            "path": "js\\app.js.bak",
+            "extension": ".bak",
+            "size": 7762,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "js\\backup.js",
+            "extension": ".js",
+            "size": 3937,
+            "modified": "2026-07-14T10:57:10"
+        },
+        {
+            "path": "js\\canvas.js",
+            "extension": ".js",
+            "size": 12379,
+            "modified": "2026-07-15T19:57:08"
+        },
+        {
+            "path": "js\\color.js",
+            "extension": ".js",
+            "size": 3290,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "js\\db.js",
+            "extension": ".js",
+            "size": 2517,
+            "modified": "2026-07-14T10:56:54"
+        },
+        {
+            "path": "js\\diagnostics.js",
+            "extension": ".js",
+            "size": 6991,
+            "modified": "2026-07-17T18:35:28"
+        },
+        {
+            "path": "js\\images.js",
+            "extension": ".js",
+            "size": 24106,
+            "modified": "2026-07-15T19:57:08"
+        },
+        {
+            "path": "js\\state.js",
+            "extension": ".js",
+            "size": 1309,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "js\\theme.js",
+            "extension": ".js",
+            "size": 1168,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "js\\trash.js",
+            "extension": ".js",
+            "size": 4275,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "js\\tree.js",
+            "extension": ".js",
+            "size": 11715,
+            "modified": "2026-07-14T10:56:30"
+        },
+        {
+            "path": "scripts\\atualizar.ps1",
+            "extension": ".ps1",
+            "size": 2755,
+            "modified": "2026-07-17T18:35:46"
+        },
+        {
+            "path": "scripts\\auditoria-projeto.ps1",
+            "extension": ".ps1",
+            "size": 7229,
+            "modified": "2026-07-17T18:35:46"
+        },
+        {
+            "path": "scripts\\mia.py",
+            "extension": ".py",
+            "size": 10403,
+            "modified": "2026-07-18T13:29:50.696970"
+        },
+        {
+            "path": "scripts\\mia_deadcode.py",
+            "extension": ".py",
+            "size": 2634,
+            "modified": "2026-07-17T17:46:18.407856"
+        },
+        {
+            "path": "scripts\\mia_doctor.py",
+            "extension": ".py",
+            "size": 4837,
+            "modified": "2026-07-17T17:44:30.992322"
+        },
+        {
+            "path": "scripts\\mia_flowcheck.py",
+            "extension": ".py",
+            "size": 2771,
+            "modified": "2026-07-17T17:46:37.412678"
+        },
+        {
+            "path": "scripts\\mia_missing_ids.py",
+            "extension": ".py",
+            "size": 640,
+            "modified": "2026-07-17T17:42:02.378518"
+        },
+        {
+            "path": "scripts\\mia_panel_audit.py",
+            "extension": ".py",
+            "size": 326,
+            "modified": "2026-07-17T17:38:25.673101"
+        },
+        {
+            "path": "scripts\\mia_panel_fix.py",
+            "extension": ".py",
+            "size": 1133,
+            "modified": "2026-07-17T17:38:54.204646"
+        },
+        {
+            "path": "scripts\\moodboard.py",
+            "extension": ".py",
+            "size": 695,
+            "modified": "2026-07-17T15:58:33.135244"
+        },
+        {
+            "path": "scripts\\organizar-pasta-mae.ps1",
+            "extension": ".ps1",
+            "size": 4343,
+            "modified": "2026-07-17T18:38:28"
+        },
+        {
+            "path": "scripts\\organizar-projeto.ps1",
+            "extension": ".ps1",
+            "size": 4599,
+            "modified": "2026-07-17T18:36:36"
+        },
+        {
+            "path": "scripts\\remover-duplicata.ps1",
+            "extension": ".ps1",
+            "size": 1521,
+            "modified": "2026-07-15T16:31:20"
+        }
+    ]
+}
