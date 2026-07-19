@@ -43,12 +43,12 @@ Status: [x] concluída
 ---
 
 ## OS-04 — Limpeza de artefatos legados
-Status: [ ] pendente
+Status: [x] concluída
 **Domínio:** raiz do repositório
 **Objetivo:** remover/arquivar `app.js.bak`, `backup.js`, `_migration_backup`.
 **Ação:** buscar referências ativas no projeto inteiro; se não houver nenhuma, mover para `/archive`; se houver, parar e reportar.
 **Automação:** total.
-**Evidência de conclusão:** _(preencher: lista de referências encontradas — ou "nenhuma referência ativa" — e confirmação de que o build segue funcionando)_
+**Evidência de conclusão:** arquivados `MoodboardStudio/js/app.js.bak` e `MoodboardStudio/scripts/_migration_backup` em `archive/legacy-moodboard`; o app continuou carregando em runtime com `title: "Moodboard Studio"`, `sidebarVisible: true`, `workspaceVisible: true` e `panelColorVisible: true`.
 
 ---
 
@@ -125,7 +125,7 @@ Status: [ ] pendente
 | 01 | concluída | 2026-07-19 | painel de cores exibido em runtime ao clicar na aba Cores; validação no navegador retornou `tree:false`, `trash:false`, `color:true` |
 | 02 | não aplicável | 2026-07-19 | bug não reproduzido na OS-01; o painel de Cores apareceu normalmente em runtime, sem necessidade de correção de código |
 | 03 | concluída | 2026-07-19 | verificação em runtime retornou 1 service worker ativo; registro atualizado com `moodboard-v4` e limpeza de registros antigos |
-| 04 | pendente | — | — |
+| 04 | concluída | 2026-07-19 | `app.js.bak` e `_migration_backup` arquivados em `archive/legacy-moodboard`; app continuou carregando em runtime sem quebra |
 | 05 | pendente | — | — |
 | 07 | pendente | — | — |
 | 06 | pendente | — | — |
