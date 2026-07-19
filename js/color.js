@@ -81,5 +81,7 @@
         }
     }
     if (colorWheelInput) colorWheelInput.addEventListener('input', handleWheelInput);
-    if (typeof DB !== 'undefined') renderPalette();
+    if (typeof DB !== 'undefined' && DB.open) {
+        DB.open().then(renderPalette).catch(() => {});
+    }
 })();

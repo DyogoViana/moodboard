@@ -1,7 +1,7 @@
 // Bump CACHE_NAME every time you ship a new version of the app files.
 // Without this, the browser would keep serving whatever was cached the
 // first time it installed, forever — updates would silently never show up.
-const CACHE_NAME = 'moodboard-v4';
+const CACHE_NAME = 'moodboard-v5';
 const urlsToCache = ['./', './index.html', './css/style.css', './js/db.js', './js/state.js', './js/theme.js', './js/canvas.js', './js/images.js', './js/tree.js', './js/trash.js', './js/color.js', './js/backup.js', './js/app.js', './manifest.json'];
 
 self.addEventListener('install', event => {

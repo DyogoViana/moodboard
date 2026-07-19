@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview visual — Moodboard Studio</title>
+  <style>
+    :root {
+      --font-display:'Iowan Old Style','Palatino Linotype',Georgia,serif;
+      --font-body:'Segoe UI',system-ui,-apple-system,sans-serif;
+      --radius-sm:3px;
+      --radius-md:6px;
+      --ink:#B0402E;
+      --ink-soft:rgba(176,64,46,0.16);
+      color-scheme: light dark;
+    }
+
+    body.theme-dark {
+      --bg-canvas:#17150F;
+      --bg-panel:#1F1C15;
+      --bg-panel-raised:#262218;
+      --bg-toolbar:#1B1811;
+      --text:#EDE6D6;
+      --text-muted:#8F8878;
+      --border:rgba(237,230,214,0.09);
+      --border-strong:rgba(237,230,214,0.16);
+      --grid-line:rgba(237,230,214,0.055);
+      --grid-line-major:rgba(237,230,214,0.09);
+      --hover:rgba(237,230,214,0.06);
+      --shadow:0 10px 30px rgba(0,0,0,0.45);
+      --image-shadow:0 6px 20px rgba(0,0,0,0.55);
+    }
+
+    body.theme-light {
+      --bg-canvas:#EDE6D6;
+      --bg-panel:#F7F2E7;
+      --bg-panel-raised:#FFFDF8;
+      --bg-toolbar:#FBF8F1;
+      --text:#211D15;
+      --text-muted:#7A7264;
+      --border:rgba(33,29,21,0.10);
+      --border-strong:rgba(33,29,21,0.18);
+      --grid-line:rgba(33,29,21,0.06);
+      --grid-line-major:rgba(33,29,21,0.10);
+      --hover:rgba(33,29,21,0.05);
+      --shadow:0 10px 30px rgba(33,29,21,0.12);
+      --image-shadow:0 6px 18px rgba(33,29,21,0.22);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;}
+    body{
+      font-family:var(--font-body);
+      background:var(--bg-canvas);
+      color:var(--text);
+      overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+      transition:background .2s ease,color .2s ease;
+    }
+    button{font-family:inherit;}
+
+    .app{display:flex;height:100vh;width:100vw;}
+    .sidebar{
+      width:272px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;
+    }
+    .brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px;}
+    .brand-mark{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--ink);color:#F7F2E7;font-family:var(--font-display);font-style:italic;font-size:17px;display:flex;align-items:center;justify-content:center;}
+    .brand-name{font-family:var(--font-display);font-size:15px;letter-spacing:.2px;}
+    .panel-tabs{display:flex;padding:0 14px;gap:4px;border-bottom:1px solid var(--border);}
+    .panel-tab{background:none;border:none;color:var(--text-muted);font-size:12px;letter-spacing:.4px;text-transform:uppercase;padding:9px 10px 11px;cursor:pointer;border-bottom:2px solid transparent;}
+    .panel-tab.active{color:var(--text);border-bottom-color:var(--ink);} 
+    .panel{flex:1;display:flex;flex-direction:column;min-height:0;padding:14px;gap:12px;}
+    .panel-card{background:var(--bg-panel-raised);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;box-shadow:var(--shadow);}
+    .panel-title{font-size:12px;color:var(--text-muted);margin-bottom:8px;}
+    .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+    .chip{padding:6px 10px;border-radius:var(--radius-sm);font-size:12px;background:var(--hover);color:var(--text);border:1px solid var(--border);}
+    .main{flex:1;display:flex;flex-direction:column;padding:20px;gap:16px;background:var(--bg-canvas);} 
+    .toolbar{display:flex;justify-content:space-between;align-items:center;background:var(--bg-toolbar);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;box-shadow:var(--shadow);} 
+    .title{font-family:var(--font-display);font-size:18px;}
+    .meta{font-size:12px;color:var(--text-muted);margin-top:3px;}
+    .toolbar-actions{display:flex;gap:8px;}
+    .btn{background:var(--bg-panel-raised);border:1px solid var(--border-strong);color:var(--text);padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;}
+    .btn.primary{background:var(--ink);color:#FFFDF8;border-color:var(--ink);} 
+    .canvas-preview{flex:1;border:1px solid var(--border);border-radius:var(--radius-md);background:linear-gradient(135deg, var(--bg-panel-raised), var(--bg-panel));box-shadow:var(--shadow);position:relative;overflow:hidden;}
+    .pin{position:absolute;width:96px;height:96px;border-radius:8px;background:var(--bg-panel-raised);border:1px solid var(--border);box-shadow:var(--image-shadow);} 
+    .pin.one{top:54px;left:48px;}
+    .pin.two{top:92px;right:60px;}
+    .pin.three{bottom:48px;left:140px;}
+    .legend{position:absolute;bottom:16px;right:16px;font-size:12px;color:var(--text-muted);background:rgba(255,255,255,0.08);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);} 
+    @media (max-width:900px){.app{flex-direction:column;}.sidebar{width:100%;border-right:0;border-bottom:1px solid var(--border);}.main{padding:12px;}}
+  </style>
+</head>
+<body class="theme-light">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div class="brand-name">Moodboard Studio</div>
+      </div>
+      <div class="panel-tabs">
+        <button class="panel-tab active" type="button">Projetos</button>
+        <button class="panel-tab" type="button">Lixeira</button>
+        <button class="panel-tab" type="button">Cores</button>
+      </div>
+      <div class="panel">
+        <div class="panel-card">
+          <div class="panel-title">Paleta atual</div>
+          <div class="chip-row">
+            <span class="chip">#B0402E</span>
+            <span class="chip">#211D15</span>
+            <span class="chip">#F7F2E7</span>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-title">Estrutura</div>
+          <div class="chip-row">
+            <span class="chip">Pasta</span>
+            <span class="chip">Board</span>
+            <span class="chip">Lixeira</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <div>
+          <div class="title">Preview visual — sem Bootstrap</div>
+          <div class="meta">Mantendo o estilo atual do projeto, com tema claro/escuro e contraste consistente.</div>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn" id="theme-toggle" type="button">Alternar tema</button>
+          <button class="btn primary" type="button">Aprovar</button>
+        </div>
+      </div>
+
+      <div class="canvas-preview">
+        <div class="pin one"></div>
+        <div class="pin two"></div>
+        <div class="pin three"></div>
+        <div class="legend">Preview isolada para aprovação visual</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const KEY = 'moodboard.preview-theme';
+    const toggle = document.getElementById('theme-toggle');
+    const stored = localStorage.getItem(KEY);
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialMode = stored || (prefersDark ? 'dark' : 'light');
+    function applyTheme(mode) {
+      document.body.classList.toggle('theme-dark', mode === 'dark');
+      document.body.classList.toggle('theme-light', mode === 'light');
+      localStorage.setItem(KEY, mode);
+    }
+    applyTheme(initialMode);
+    toggle.addEventListener('click', () => {
+      const next = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
+      applyTheme(next);
+    });
+  </script>
+</body>
+</html>
