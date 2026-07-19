@@ -118,14 +118,21 @@
 // Registro do Service Worker para PWA
 // ==============================================================================
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('SW registrado com sucesso:', reg.scope))
-            .catch(err => console.log('Falha no registro do SW:', err));
-    });
-}
+    window.addEventListener('load', async () => {
+        try {
+            const appScope = new URL('./', window.location.href).toString();
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            const currentRegistration = registrations.find(reg => reg.scope === appScope);
 
-// =========================================
+            await Promise.all(registrations
+                .filter(reg => reg !== currentRegistration)
+                .map(reg => reg.unregister()));
+
+            const registration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+            console.log('SW registrado/atualizado com sucesso:', registration.scope);
+        } catch (err) {
+            console.log('Falha no registro/atualização do SW:', err);
+        }
 // ADA UX CRITIQUE: Dynamic Toolbar Grouping & Responsiveness
 // =========================================
 (function() {
