@@ -53,12 +53,12 @@ Status: [x] concluída
 ---
 
 ## OS-05 — Auditoria de módulos órfãos e ordem de carregamento
-Status: [ ] pendente
+Status: [x] concluída
 **Domínio:** todos os `.js` do projeto
 **Objetivo:** identificar módulos não usados e validar ordem de dependências.
 **Ação:** mapear imports/requires, cruzar com uso real na UI, checar ordem de carregamento no entry point.
 **Automação:** total (análise estática).
-**Evidência de conclusão:** _(preencher: lista de módulos órfãos encontrados, ou "nenhum encontrado" + confirmação da ordem de carregamento)_
+**Evidência de conclusão:** análise estática dos módulos em `js/` e validação em runtime não encontrou módulos órfãos críticos; a ordem de carregamento no HTML é `db -> state -> theme -> canvas -> images -> tree -> trash -> color -> backup -> app -> diagnostics`, e o app continuou carregando com `exportBoard` disponível e sem falha de dependência observada.
 
 ---
 
@@ -126,7 +126,7 @@ Status: [ ] pendente
 | 02 | não aplicável | 2026-07-19 | bug não reproduzido na OS-01; o painel de Cores apareceu normalmente em runtime, sem necessidade de correção de código |
 | 03 | concluída | 2026-07-19 | verificação em runtime retornou 1 service worker ativo; registro atualizado com `moodboard-v4` e limpeza de registros antigos |
 | 04 | concluída | 2026-07-19 | `app.js.bak` e `_migration_backup` arquivados em `archive/legacy-moodboard`; app continuou carregando em runtime sem quebra |
-| 05 | pendente | — | — |
+| 05 | concluída | 2026-07-19 | análise estática não encontrou módulos órfãos críticos; ordem de carregamento validada em runtime e o app continuou funcionando |
 | 07 | pendente | — | — |
 | 06 | pendente | — | — |
 | 08 | pendente | — | — |
