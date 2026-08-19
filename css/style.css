@@ -479,6 +479,78 @@ input[type=file]{display:none;}
   margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);
 }
 
+/* ============ IMPORTAÇÃO PINTEREST ============ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  width: min(620px, 90vw);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.modal-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-family: var(--font-display);
+}
+.modal-hint {
+  margin: 0 0 10px 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#import-input-text {
+  width: 100%;
+  min-height: 180px;
+  background: var(--bg-canvas);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.btn-tool-secondary {
+  background: transparent;
+  border-color: var(--border-strong);
+}
+.import-status {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.import-status.hidden { display: none; }
+.import-status.success {
+  background: rgba(46,204,113,0.12);
+  color: #7fe0a4;
+}
+.import-status.error {
+  background: rgba(231,76,60,0.12);
+  color: #ff9d92;
+}
+.import-status.info {
+  background: rgba(52,152,219,0.12);
+  color: #8cc9ff;
+}
+
 /* ---- images on canvas ---- */
 
 .board-image{
