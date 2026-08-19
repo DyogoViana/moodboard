@@ -214,3 +214,72 @@ window.addEventListener('load', () => {
         .getElementById('btn-theme')
         ?.addEventListener('click', () => THEME.toggle());
 });
+
+// ==========================================================================
+// TOOLTIPS — garante descrição (title) em todo controle icônico
+// ==========================================================================
+(function () {
+    const MAP = [
+        ['#btn-save', 'Salvar board (Ctrl+S)'],
+        ['#btn-add-url', 'Colar link de imagem ou HTML do Pinterest'],
+        ['#btn-export-image', 'Exportar este board como PNG'],
+        ['#btn-front', 'Trazer seleção para frente'],
+        ['#btn-back', 'Enviar seleção para trás'],
+        ['#btn-flip-h', 'Espelhar horizontalmente'],
+        ['#btn-flip-v', 'Espelhar verticalmente'],
+        ['#btn-align-uniform', 'Alinhar e uniformizar tamanho da seleção (2+)'],
+        ['#btn-delete', 'Mover seleção para a lixeira (Del)'],
+        ['#btn-pan-mode', 'Ferramenta Mão — arrastar para navegar (H)'],
+        ['#btn-zoom-mode', 'Ferramenta Zoom — clique amplia, Alt+clique reduz (Z)'],
+        ['#btn-zoom-out', 'Reduzir zoom'],
+        ['#btn-zoom-in', 'Aumentar zoom'],
+        ['#btn-reset-view', 'Recentralizar na seleção (ou no palco todo)'],
+        ['#btn-collapse-sidebar', 'Recolher/expandir a barra lateral'],
+        ['#btn-new-folder', 'Criar nova pasta'],
+        ['#btn-new-board', 'Criar novo board'],
+        ['#btn-empty-trash', 'Esvaziar lixeira (ação permanente)'],
+        ['#btn-eye-dropper', 'Conta-gotas: capturar cor da tela'],
+        ['#btn-theme', 'Alternar tema claro/escuro'],
+        ['button[onclick*="toggleThumbnails"]', 'Mostrar/ocultar miniaturas dos boards'],
+        ['button[onclick*="exportBoard"]', 'Exportar este board como PNG'],
+        ['.tree-row-actions .btn-tool', 'Ações da árvore']
+    ];
+
+    function apply() {
+        MAP.forEach(([selector, text]) => {
+            document.querySelectorAll(selector).forEach(el => {
+                if (!el.getAttribute('title')) {
+                    el.setAttribute('title', text);
+                }
+            });
+        });
+
+        const directFallbacks = {
+            '#btn-collapse-sidebar': 'Recolher/expandir a barra lateral',
+            '#btn-eye-dropper': 'Conta-gotas: capturar cor da tela',
+            '#btn-new-folder': 'Criar nova pasta',
+            '#btn-new-board': 'Criar novo board'
+        };
+
+        Object.entries(directFallbacks).forEach(([selector, text]) => {
+            const el = document.querySelector(selector);
+            if (el && !el.getAttribute('title')) {
+                el.setAttribute('title', text);
+            }
+        });
+    }
+
+    const renderTree = typeof TREE !== 'undefined' && TREE && typeof TREE.render === 'function' ? TREE.render.bind(TREE) : null;
+    if (renderTree) {
+        TREE.render = function () {
+            renderTree();
+            apply();
+        };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+    } else {
+        apply();
+    }
+})();
