@@ -99,11 +99,40 @@ if ('serviceWorker' in navigator) {
         }
 
         if (!btn.querySelector('.ada-btn-text')) {
-            const original = btn.innerHTML;
-            const text = btn.textContent.trim();
-            btn.innerHTML =
-                `<span class="ada-btn-icon">${original}</span>` +
-                `<span class="ada-btn-text">${text}</span>`;
+            const rawText = btn.textContent.trim();
+            let iconText = '';
+            let cleanText = rawText;
+
+            const emojiMatch = rawText.match(/^(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})/u);
+            if (emojiMatch) {
+                iconText = emojiMatch[0];
+                cleanText = rawText.slice(iconText.length).trim();
+            } else {
+                const firstChar = [...rawText][0] || '';
+                const isFallbackEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(firstChar);
+                if (isFallbackEmoji) {
+                    iconText = firstChar;
+                    cleanText = rawText.slice(firstChar.length).trim();
+                }
+            }
+
+            if (!cleanText) {
+                iconText = rawText;
+                cleanText = '';
+            }
+
+            btn.textContent = '';
+
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'ada-btn-icon';
+            iconSpan.textContent = iconText;
+            if (!iconText) iconSpan.style.display = 'none';
+            btn.appendChild(iconSpan);
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'ada-btn-text';
+            textSpan.textContent = cleanText;
+            btn.appendChild(textSpan);
         }
 
         if (primaryIds.includes(btn.id)) {
