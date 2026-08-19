@@ -1,5 +1,5 @@
-/* ==========================================================================
-   MOODBOARD STUDIO — design tokens
+﻿/* ==========================================================================
+   MOODBOARD STUDIO â€” design tokens
    Dark mode: raw canvas / graphite atelier.
    Light mode: unbleached linen / carbon pencil.
    Accent: muted ink-red, used only for selection & active state.
@@ -265,6 +265,19 @@ button{font-family:inherit;}
   border-radius:6px;
 }
 .btn-ghost:hover{color:var(--text);background:var(--hover);} 
+.theme-icon,
+.ada-btn-icon,
+.tree-row-actions button,
+.btn-ghost .theme-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.theme-icon svg,
+.ada-btn-icon svg,
+.tree-row-actions button svg,
+.btn-ghost .theme-icon svg,
+.collapse-tab svg{
+  width:14px;height:14px;display:block;
+}
 .theme-icon{font-size:13px;}
 
 .collapse-tab{
@@ -282,7 +295,11 @@ button{font-family:inherit;}
   transition:left .22s ease, box-shadow .2s ease;
   font-size:12px;
   box-shadow:var(--shadow);
-.collapse-tab:hover{color:var(--text);}
+}
+
+.collapse-tab:hover{
+  color:var(--text);
+}
 #sidebar.collapsed ~ .collapse-tab{left:0;transform:translateX(0);}
 
 /* ============ WORKSPACE ============ */
@@ -299,7 +316,8 @@ button{font-family:inherit;}
   align-items:center;
   padding:0 16px;
   gap:16px;
-  overflow-x:auto;
+  overflow:visible;
+  overflow-x:visible;
   box-shadow:0 1px 0 rgba(255,255,255,0.03) inset;
 }
 
@@ -460,6 +478,78 @@ input[type=file]{display:none;}
 #diagnostics-panel .diag-stamp{
   font-family:var(--font-mono);font-size:10px;color:var(--text-muted);
   margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+
+/* ============ IMPORTAÇÃO PINTEREST ============ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  width: min(620px, 90vw);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.modal-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-family: var(--font-display);
+}
+.modal-hint {
+  margin: 0 0 10px 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+#import-input-text {
+  width: 100%;
+  min-height: 180px;
+  background: var(--bg-canvas);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.btn-tool-secondary {
+  background: transparent;
+  border-color: var(--border-strong);
+}
+.import-status {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.import-status.hidden { display: none; }
+.import-status.success {
+  background: rgba(46,204,113,0.12);
+  color: #7fe0a4;
+}
+.import-status.error {
+  background: rgba(231,76,60,0.12);
+  color: #ff9d92;
+}
+.import-status.info {
+  background: rgba(52,152,219,0.12);
+  color: #8cc9ff;
 }
 
 /* ---- images on canvas ---- */
@@ -627,7 +717,7 @@ input[type=file]{display:none;}
 
 /* Responsividade (Kimi/ADA) */
 @media (max-width: 768px) {
-    .ada-btn-text { display: none; } /* Esconde texto, mantém ícones */
+    .ada-btn-text { display: none; } /* Esconde texto, mantÃ©m Ã­cones */
     .ada-btn-tool { padding: 8px; }
     .ada-top-bar { padding: 0 8px; }
 }

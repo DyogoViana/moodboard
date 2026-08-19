@@ -1,5 +1,5 @@
-/* ==========================================================================
-   tree.js — sidebar folder/board tree.
+﻿/* ==========================================================================
+   tree.js â€” sidebar folder/board tree.
    Folders can be nested without limit. Boards live inside folders or at root.
    Deleting a board is a *soft* delete (recoverable from Lixeira).
    Deleting a non-empty folder is a *permanent* cascade delete (confirmed).
@@ -8,6 +8,8 @@
 const TREE = (() => {
   const root = document.getElementById('tree-root');
   const expanded = new Set();
+  const thumbnailCache = new Map();
+  const THUMBNAIL_TTL = 60000;
 
   async function loadNodes() {
     const all = await DB.getAll('nodes');
@@ -21,7 +23,7 @@ const TREE = (() => {
     if (top.length === 0) {
       const hint = document.createElement('p');
       hint.className = 'trash-empty';
-      hint.textContent = 'Crie uma pasta ou um board para começar.';
+      hint.textContent = 'Crie uma pasta ou um board para comeÃ§ar.';
       root.appendChild(hint);
       return;
     }
@@ -43,12 +45,12 @@ const TREE = (() => {
 
     const caret = document.createElement('span');
     caret.className = 'tree-caret ' + (node.type === 'folder' ? (isOpen ? 'open' : '') : 'leaf');
-    caret.textContent = node.type === 'folder' ? '▸' : '';
+    caret.textContent = node.type === 'folder' ? 'â–¸' : '';
     row.appendChild(caret);
 
     const icon = document.createElement('span');
     icon.className = 'tree-icon';
-    icon.textContent = node.type === 'folder' ? '' : '▤';
+    icon.textContent = node.type === 'folder' ? '' : 'â–¤';
     row.appendChild(icon);
 
     const label = document.createElement('span');
@@ -58,27 +60,27 @@ const TREE = (() => {
 
     const actions = document.createElement('div');
     actions.className = 'tree-row-actions';
-        const thumbImg = document.createElement('img');
-        thumbImg.className = 'tree-thumbnail';
-        thumbImg.style.display = 'none';
-        actions.appendChild(thumbImg);
-        setTimeout(() => { if(typeof loadThumbnail === 'function') loadThumbnail(node, thumbImg); }, 0);
-        if (node.type === 'board') {
-            const tagBtn = document.createElement('button');
-            tagBtn.className = 'btn-tool';
-            tagBtn.textContent = '🏷';
-            tagBtn.title = 'Etiqueta de cliente';
-            tagBtn.onclick = (e) => { e.stopPropagation(); if (typeof editClientTag === 'function') editClientTag(node); };
-            actions.appendChild(tagBtn);
-        }
-    if (node.type === 'folder') {
-      actions.appendChild(makeActionBtn('+', 'Nova subpasta', () => createFolder(node.id)));
-      actions.appendChild(makeActionBtn('▤', 'Novo board aqui', () => createBoard(node.id)));
-    } else {
-      actions.appendChild(makeActionBtn('⧉', 'Duplicar board', () => duplicateBoard(node.id)));
+    const thumbImg = document.createElement('img');
+    thumbImg.className = 'tree-thumbnail';
+    thumbImg.style.display = 'none';
+    actions.appendChild(thumbImg);
+    setTimeout(() => { if(typeof loadThumbnail === 'function') loadThumbnail(node, thumbImg); }, 0);
+    if (node.type === 'board') {
+      const tagBtn = document.createElement('button');
+      tagBtn.className = 'btn-tool';
+      tagBtn.innerHTML = ICONS.tag;
+      tagBtn.title = 'Etiqueta de cliente';
+      tagBtn.onclick = (e) => { e.stopPropagation(); if (typeof editClientTag === 'function') editClientTag(node); };
+      actions.appendChild(tagBtn);
     }
-    actions.appendChild(makeActionBtn('✎', 'Renomear', () => startRename(label, node)));
-    actions.appendChild(makeActionBtn('×', node.type === 'folder' ? 'Excluir pasta' : 'Mover para lixeira', () => deleteNode(node)));
+    if (node.type === 'folder') {
+      actions.appendChild(makeActionBtn('folderPlus', 'Nova subpasta', () => createFolder(node.id)));
+      actions.appendChild(makeActionBtn('boardPlus', 'Novo board aqui', () => createBoard(node.id)));
+    } else {
+      actions.appendChild(makeActionBtn('copy', 'Duplicar board', () => duplicateBoard(node.id)));
+    }
+    actions.appendChild(makeActionBtn('pencil', 'Renomear', () => startRename(label, node)));
+    actions.appendChild(makeActionBtn('x', node.type === 'folder' ? 'Excluir pasta' : 'Mover para lixeira', () => deleteNode(node)));
     row.appendChild(actions);
 
     row.addEventListener('click', (e) => {
@@ -106,8 +108,12 @@ const TREE = (() => {
 
   function makeActionBtn(symbol, title, handler) {
     const b = document.createElement('button');
-    b.textContent = symbol;
     b.title = title;
+    if (window.ICONS && ICONS[symbol]) {
+      b.innerHTML = ICONS[symbol];
+    } else {
+      b.textContent = symbol;
+    }
     b.addEventListener('click', (e) => { e.stopPropagation(); handler(); });
     return b;
   }
@@ -139,7 +145,7 @@ const TREE = (() => {
   async function duplicateBoard(boardId) {
     const original = getNode(boardId);
     if (!original) return;
-    const copy = { ...original, id: uid('b'), name: original.name + ' (cópia)' };
+    const copy = { ...original, id: uid('b'), name: original.name + ' (cÃ³pia)' };
     await DB.put('nodes', copy);
     STATE.nodes.push(copy);
 
@@ -200,7 +206,7 @@ const TREE = (() => {
     const boards = STATE.nodes.filter(n => n.type === 'board' && folderIds.includes(n.parentId));
     const subCount = folderIds.length - 1;
     const msg = (boards.length || subCount)
-      ? `Excluir "${node.name}" também apagará permanentemente ${subCount} subpasta(s) e ${boards.length} board(s) com todas as suas imagens. Esta ação não pode ser desfeita. Continuar?`
+      ? `Excluir "${node.name}" tambÃ©m apagarÃ¡ permanentemente ${subCount} subpasta(s) e ${boards.length} board(s) com todas as suas imagens. Esta aÃ§Ã£o nÃ£o pode ser desfeita. Continuar?`
       : `Excluir a pasta "${node.name}"?`;
     if (!confirm(msg)) return;
 
@@ -264,23 +270,37 @@ const TREE = (() => {
   });
 
   function openBoardUI(node) {
+
+    console.log("===== openBoardUI =====");
+    console.log(node);
+    console.log("Antes:", document.getElementById('tools-container').className);
+
     STATE.currentBoardId = node.id;
     document.getElementById('board-title').textContent = node.name;
     document.getElementById('tools-container').classList.remove('hidden');
+    console.log("Depois:", document.getElementById('tools-container').className);
     document.getElementById('empty-state').classList.add('hidden');
     CANVAS.reset();
     render();
   }
 
-  return { loadNodes, render, createFolder, createBoard };
+  function renderTree() {
+    render();
+  }
+
+  return { loadNodes, render, renderTree, createFolder, createBoard };
 })();
+
+window.renderTree = function() {
+  if (TREE && typeof TREE.render === 'function') TREE.render();
+};
 
 // --- HANDOFF: Etiqueta de Cliente e Miniaturas ---
 window.editClientTag = function(node) {
     const newTag = prompt('Etiqueta do cliente:', node.clientTag || '');
     if (newTag !== null) {
         node.clientTag = newTag.trim();
-        DB.put('nodes', node).then(() => { if (typeof renderTree === 'function') renderTree(); });
+        DB.put('nodes', node).then(() => { if (typeof TREE !== 'undefined' && TREE.render) TREE.render(); });
     }
 };
 
@@ -288,22 +308,39 @@ window.toggleThumbnails = function() {
     const current = localStorage.getItem('showThumbnails');
     const newVal = current === 'false' ? 'true' : 'false';
     localStorage.setItem('showThumbnails', newVal);
-    if (typeof renderTree === 'function') renderTree();
+    if (typeof TREE !== 'undefined' && TREE.render) TREE.render();
 };
 
 window.loadThumbnail = function(node, imgElement) {
     if (!node || node.type !== 'board' || !imgElement) return;
     const show = localStorage.getItem('showThumbnails') !== 'false';
     if (!show) { imgElement.style.display = 'none'; return; }
-    if (typeof DB !== 'undefined' && DB.getAll) {
-        DB.getAll('images').then(images => {
-            const boardImg = images.find(img => img.boardId === node.id && !img.deleted);
+
+    const cached = thumbnailCache.get(node.id);
+    const now = Date.now();
+
+    if (cached && (now - cached.timestamp) < THUMBNAIL_TTL) {
+        imgElement.src = cached.url;
+        imgElement.style.display = 'block';
+        return;
+    }
+
+    if (typeof DB !== 'undefined' && DB.getByIndex) {
+        DB.getByIndex('images', 'boardId', node.id).then(images => {
+            const boardImg = images.find(img => !img.deleted && img.blob);
             if (boardImg && boardImg.blob) {
-                imgElement.src = URL.createObjectURL(boardImg.blob);
+                if (cached && cached.url) {
+                    try { URL.revokeObjectURL(cached.url); } catch (e) {}
+                }
+                const newUrl = URL.createObjectURL(boardImg.blob);
+                imgElement.src = newUrl;
                 imgElement.style.display = 'block';
+                thumbnailCache.set(node.id, { url: newUrl, timestamp: now });
             } else {
                 imgElement.style.display = 'none';
             }
+        }).catch(() => {
+            imgElement.style.display = 'none';
         });
     }
 };

@@ -446,6 +446,113 @@ const IMAGES = (() => {
   const IMAGE_EXT_RE = /\.(jpe?g|png|gif|webp|avif|bmp)(\?.*)?$/i;
   const PINIMG_RE = /pinimg\.com/i;
 
+  const importModal = document.getElementById('import-modal');
+  const importInputText = document.getElementById('import-input-text');
+  const importStatus = document.getElementById('import-status');
+
+  function showImportModal() {
+    if (!importModal) return;
+    importModal.classList.remove('hidden');
+    importModal.setAttribute('aria-hidden', 'false');
+    if (importInputText) {
+      importInputText.value = '';
+      importInputText.focus();
+    }
+    if (importStatus) {
+      importStatus.className = 'import-status hidden';
+      importStatus.textContent = '';
+    }
+  }
+
+  function hideImportModal() {
+    if (!importModal) return;
+    importModal.classList.add('hidden');
+    importModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function showImportStatus(message, type = 'info') {
+    if (!importStatus) return;
+    importStatus.textContent = message;
+    importStatus.className = 'import-status ' + type;
+    importStatus.classList.remove('hidden');
+  }
+
+  async function processImport() {
+    if (!importInputText) return;
+    const input = importInputText.value.trim();
+    if (!input) {
+      showImportStatus('Cole um link, URLs ou HTML do Pinterest antes de processar.', 'error');
+      return;
+    }
+
+    const lines = input
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    if (lines.length === 0) {
+      showImportStatus('Nada foi enviado no campo de importação.', 'error');
+      return;
+    }
+
+    const htmlLike = input.includes('<html') || input.includes('<img') || /<\/?[a-z][\s\S]*>/i.test(input);
+    if (htmlLike) {
+      const urls = extractPinterestUrls(input);
+      if (!urls.length) {
+        showImportStatus('Nenhuma imagem do Pinterest foi encontrada no HTML informado.', 'error');
+        return;
+      }
+      showImportStatus(`Encontradas ${urls.length} imagens. Baixando...`, 'info');
+      const result = await addManyFromURLs(urls, (done, total) => {
+        if (importStatus) showImportStatus(`Baixando ${done}/${total}...`, 'info');
+      });
+      showImportStatus(`${result.added} de ${result.total} imagens importadas.`, 'success');
+      setTimeout(hideImportModal, 1800);
+      return;
+    }
+
+    const directUrls = lines.filter(line => /^https?:\/\//i.test(line));
+    if (directUrls.length > 0) {
+      const urls = directUrls.filter(l => isImageUrl(l) || /pinimg\.com/i.test(l));
+      if (!urls.length) {
+        showImportStatus('Nenhuma URL válida de imagem foi detectada.', 'error');
+        return;
+      }
+      showImportStatus(`Encontradas ${urls.length} URLs. Baixando...`, 'info');
+      const result = await addManyFromURLs(urls, (done, total) => {
+        if (importStatus) showImportStatus(`Baixando ${done}/${total}...`, 'info');
+      });
+      showImportStatus(`${result.added} de ${result.total} imagens importadas.`, 'success');
+      setTimeout(hideImportModal, 1800);
+      return;
+    }
+
+    if (/^https?:\/\/(www\.)?pinterest\.com/i.test(input)) {
+      try {
+        const res = await fetch(input, { mode: 'cors' });
+        if (!res.ok) throw new Error('blocked');
+        const html = await res.text();
+        const urls = extractPinterestUrls(html);
+        if (urls.length > 0) {
+          const result = await addManyFromURLs(urls, (done, total) => {
+            if (importStatus) showImportStatus(`Baixando ${done}/${total}...`, 'info');
+          });
+          showImportStatus(`${result.added} de ${result.total} imagens importadas.`, 'success');
+          setTimeout(hideImportModal, 1800);
+          return;
+        }
+      } catch (err) {
+        showImportStatus(
+          'O Pinterest bloqueou o fetch direto do board. Abra a página, role até o fim, copie o HTML com F12 e cole aqui.',
+          'info'
+        );
+        return;
+      }
+    }
+
+    showImportStatus('Formato não reconhecido. Cole URLs de imagens, HTML do Pinterest ou o link do board.', 'error');
+  }
+
   function isImageUrl(url) {
     return IMAGE_EXT_RE.test(url) || PINIMG_RE.test(url);
   }
@@ -581,35 +688,30 @@ const IMAGES = (() => {
   // fallback for those is to open them in new tabs so the user can save
   // the image manually (right-click → salvar imagem), instead of just
   // failing silently.
-  const txtInput = document.getElementById('links-txt-input');
-  if (txtInput) {
-    txtInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      e.target.value = '';
-      if (!file || !STATE.currentBoardId) {
-        if (!STATE.currentBoardId) alert('Selecione ou crie um board primeiro.');
+  const btnImportPinterest = document.getElementById('btn-import-pinterest');
+  if (btnImportPinterest) {
+    btnImportPinterest.addEventListener('click', () => {
+      if (!STATE.currentBoardId) {
+        alert('Selecione ou crie um board primeiro.');
         return;
       }
-      const text = await file.text();
-      const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-      const direct = lines.filter(l => isImageUrl(l));
-      const pages = lines.filter(l => !isImageUrl(l) && /^https?:\/\//i.test(l));
+      showImportModal();
+    });
+  }
 
-      const { added, total } = await addManyFromURLs(direct);
+  const btnImportProcess = document.getElementById('btn-import-process');
+  if (btnImportProcess) {
+    btnImportProcess.addEventListener('click', processImport);
+  }
 
-      if (pages.length > 0) {
-        const openThem = confirm(
-          `${added} de ${total} links diretos de imagem foram adicionados.\n\n` +
-          `${pages.length} link(s) são páginas do Pinterest, não imagens diretas — ` +
-          `o navegador não consegue baixar essas automaticamente (bloqueio do próprio Pinterest).\n\n` +
-          `Abrir essas ${pages.length} páginas em novas abas para você salvar manualmente (botão direito → salvar imagem)?`
-        );
-        if (openThem) {
-          pages.forEach((url, i) => setTimeout(() => window.open(url, '_blank'), i * 300));
-        }
-      } else {
-        alert(`${added} de ${total} imagens adicionadas.`);
-      }
+  const btnImportCancel = document.getElementById('btn-import-cancel');
+  if (btnImportCancel) {
+    btnImportCancel.addEventListener('click', hideImportModal);
+  }
+
+  if (importModal) {
+    importModal.addEventListener('click', (e) => {
+      if (e.target === importModal) hideImportModal();
     });
   }
 

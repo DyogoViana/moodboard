@@ -29,6 +29,18 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+function renderStaticIcons(root = document) {
+    if (!window.ICONS) return;
+    root.querySelectorAll('[data-icon]').forEach(el => {
+        const key = el.dataset.icon;
+        if (!key || !ICONS[key]) return;
+        const target = el.classList.contains('theme-icon') || el.tagName === 'SPAN' || el.tagName === 'BUTTON' || el.tagName === 'LABEL' ? el : null;
+        if (target) {
+            target.innerHTML = ICONS[key];
+        }
+    });
+}
+
 // =========================================
 // ADA UX CRITIQUE: Dynamic Toolbar Grouping & Responsiveness
 // =========================================
@@ -66,7 +78,7 @@ if ('serviceWorker' in navigator) {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'ada-btn-tool';
     moreBtn.innerHTML =
-        '<span class="ada-btn-icon">⋯</span><span class="ada-btn-text">Mais</span>';
+        '<span class="ada-btn-icon">' + (window.ICONS ? ICONS.more : '⋯') + '</span><span class="ada-btn-text">Mais</span>';
 
     const moreMenu = document.createElement('div');
     moreMenu.className = 'ada-more-menu';
@@ -85,6 +97,27 @@ if ('serviceWorker' in navigator) {
 
     const buttons = Array.from(toolbar.querySelectorAll('.btn-tool'));
 
+    function applyIconMarkup(btn, iconKey, defaultLabel) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'ada-btn-icon';
+
+        if (window.ICONS && iconKey && ICONS[iconKey]) {
+            iconSpan.innerHTML = ICONS[iconKey];
+        } else if (defaultLabel) {
+            iconSpan.textContent = defaultLabel;
+        } else {
+            iconSpan.style.display = 'none';
+        }
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'ada-btn-text';
+        textSpan.textContent = btn.dataset.label || '';
+
+        btn.textContent = '';
+        btn.appendChild(iconSpan);
+        btn.appendChild(textSpan);
+    }
+
     buttons.forEach(btn => {
         btn.classList.add('ada-btn-tool');
 
@@ -98,42 +131,46 @@ if ('serviceWorker' in navigator) {
             return;
         }
 
-        if (!btn.querySelector('.ada-btn-text')) {
-            const rawText = btn.textContent.trim();
-            let iconText = '';
-            let cleanText = rawText;
+        const rawText = (btn.textContent || '').trim();
+        const keyMap = {
+            'btn-save': 'save',
+            'btn-add-url': 'link',
+            'btn-export-image': 'image',
+            'btn-front': 'front',
+            'btn-back': 'back',
+            'btn-flip-h': 'flipH',
+            'btn-flip-v': 'flipV',
+            'btn-align-uniform': 'align',
+            'btn-delete': 'trash',
+            'btn-pan-mode': 'move',
+            'btn-zoom-mode': 'zoom',
+            'btn-zoom-out': 'zoomOut',
+            'btn-zoom-in': 'zoomIn',
+            'btn-reset-view': 'reset'
+        };
 
-            const emojiMatch = rawText.match(/^(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})/u);
-            if (emojiMatch) {
-                iconText = emojiMatch[0];
-                cleanText = rawText.slice(iconText.length).trim();
-            } else {
-                const firstChar = [...rawText][0] || '';
-                const isFallbackEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(firstChar);
-                if (isFallbackEmoji) {
-                    iconText = firstChar;
-                    cleanText = rawText.slice(firstChar.length).trim();
-                }
-            }
+        const iconKey = btn.dataset.icon || keyMap[btn.id] || null;
+        const cleanText = (btn.dataset.label || rawText).replace(/^[^A-Za-zÀ-ÿ0-9]+|[^A-Za-zÀ-ÿ0-9]+$/g, '').trim();
 
-            if (!cleanText) {
-                iconText = rawText;
-                cleanText = '';
-            }
+        btn.dataset.label = cleanText || btn.dataset.label || rawText;
 
-            btn.textContent = '';
+        btn.textContent = '';
 
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'ada-btn-icon';
-            iconSpan.textContent = iconText;
-            if (!iconText) iconSpan.style.display = 'none';
-            btn.appendChild(iconSpan);
-
-            const textSpan = document.createElement('span');
-            textSpan.className = 'ada-btn-text';
-            textSpan.textContent = cleanText;
-            btn.appendChild(textSpan);
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'ada-btn-icon';
+        if (window.ICONS && iconKey && ICONS[iconKey]) {
+            iconSpan.innerHTML = ICONS[iconKey];
+        } else if (rawText && !cleanText) {
+            iconSpan.textContent = rawText;
+        } else {
+            iconSpan.style.display = 'none';
         }
+        btn.appendChild(iconSpan);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'ada-btn-text';
+        textSpan.textContent = cleanText || '';
+        btn.appendChild(textSpan);
 
         if (primaryIds.includes(btn.id)) {
             btn.classList.add('primary');
@@ -202,6 +239,7 @@ document.querySelectorAll('.panel-tab').forEach(tab => {
 // Toolbar da árvore
 // ==============================================================================
 window.addEventListener('load', () => {
+    renderStaticIcons();
     document
         .getElementById('btn-new-folder')
         ?.addEventListener('click', () => TREE.createFolder(null));
@@ -214,3 +252,72 @@ window.addEventListener('load', () => {
         .getElementById('btn-theme')
         ?.addEventListener('click', () => THEME.toggle());
 });
+
+// ==========================================================================
+// TOOLTIPS — garante descrição (title) em todo controle icônico
+// ==========================================================================
+(function () {
+    const MAP = [
+        ['#btn-save', 'Salvar board (Ctrl+S)'],
+        ['#btn-add-url', 'Colar link de imagem ou HTML do Pinterest'],
+        ['#btn-export-image', 'Exportar este board como PNG'],
+        ['#btn-front', 'Trazer seleção para frente'],
+        ['#btn-back', 'Enviar seleção para trás'],
+        ['#btn-flip-h', 'Espelhar horizontalmente'],
+        ['#btn-flip-v', 'Espelhar verticalmente'],
+        ['#btn-align-uniform', 'Alinhar e uniformizar tamanho da seleção (2+)'],
+        ['#btn-delete', 'Mover seleção para a lixeira (Del)'],
+        ['#btn-pan-mode', 'Ferramenta Mão — arrastar para navegar (H)'],
+        ['#btn-zoom-mode', 'Ferramenta Zoom — clique amplia, Alt+clique reduz (Z)'],
+        ['#btn-zoom-out', 'Reduzir zoom'],
+        ['#btn-zoom-in', 'Aumentar zoom'],
+        ['#btn-reset-view', 'Recentralizar na seleção (ou no palco todo)'],
+        ['#btn-collapse-sidebar', 'Recolher/expandir a barra lateral'],
+        ['#btn-new-folder', 'Criar nova pasta'],
+        ['#btn-new-board', 'Criar novo board'],
+        ['#btn-empty-trash', 'Esvaziar lixeira (ação permanente)'],
+        ['#btn-eye-dropper', 'Conta-gotas: capturar cor da tela'],
+        ['#btn-theme', 'Alternar tema claro/escuro'],
+        ['button[onclick*="toggleThumbnails"]', 'Mostrar/ocultar miniaturas dos boards'],
+        ['button[onclick*="exportBoard"]', 'Exportar este board como PNG'],
+        ['.tree-row-actions .btn-tool', 'Ações da árvore']
+    ];
+
+    function apply() {
+        MAP.forEach(([selector, text]) => {
+            document.querySelectorAll(selector).forEach(el => {
+                if (!el.getAttribute('title')) {
+                    el.setAttribute('title', text);
+                }
+            });
+        });
+
+        const directFallbacks = {
+            '#btn-collapse-sidebar': 'Recolher/expandir a barra lateral',
+            '#btn-eye-dropper': 'Conta-gotas: capturar cor da tela',
+            '#btn-new-folder': 'Criar nova pasta',
+            '#btn-new-board': 'Criar novo board'
+        };
+
+        Object.entries(directFallbacks).forEach(([selector, text]) => {
+            const el = document.querySelector(selector);
+            if (el && !el.getAttribute('title')) {
+                el.setAttribute('title', text);
+            }
+        });
+    }
+
+    const renderTree = typeof TREE !== 'undefined' && TREE && typeof TREE.render === 'function' ? TREE.render.bind(TREE) : null;
+    if (renderTree) {
+        TREE.render = function () {
+            renderTree();
+            apply();
+        };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+    } else {
+        apply();
+    }
+})();
