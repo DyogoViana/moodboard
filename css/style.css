@@ -316,7 +316,8 @@ button{font-family:inherit;}
   align-items:center;
   padding:0 16px;
   gap:16px;
-  overflow-x:auto;
+  overflow:visible;
+  overflow-x:visible;
   box-shadow:0 1px 0 rgba(255,255,255,0.03) inset;
 }
 
