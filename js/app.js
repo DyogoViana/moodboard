@@ -24,7 +24,7 @@ if ('serviceWorker' in navigator) {
             console.log('SW registrado/atualizado com sucesso:', registration.scope);
 
         } catch (err) {
-            console.log('Falha no registro/atualizaÃ§Ã£o do SW:', err);
+            console.log('Falha no registro/atualização do SW:', err);
         }
     });
 }
@@ -58,6 +58,7 @@ function renderStaticIcons(root = document) {
 
     const primaryIds = [
         'btn-save',
+        'btn-import-pinterest',
         'btn-delete',
         'btn-zoom-in',
         'btn-zoom-out',

@@ -1,5 +1,5 @@
 ﻿/* ==========================================================================
-   tree.js â€” sidebar folder/board tree.
+   tree.js — sidebar folder/board tree.
    Folders can be nested without limit. Boards live inside folders or at root.
    Deleting a board is a *soft* delete (recoverable from Lixeira).
    Deleting a non-empty folder is a *permanent* cascade delete (confirmed).
@@ -23,7 +23,7 @@ const TREE = (() => {
     if (top.length === 0) {
       const hint = document.createElement('p');
       hint.className = 'trash-empty';
-      hint.textContent = 'Crie uma pasta ou um board para comeÃ§ar.';
+      hint.textContent = 'Crie uma pasta ou um board para começar.';
       root.appendChild(hint);
       return;
     }
@@ -45,12 +45,12 @@ const TREE = (() => {
 
     const caret = document.createElement('span');
     caret.className = 'tree-caret ' + (node.type === 'folder' ? (isOpen ? 'open' : '') : 'leaf');
-    caret.textContent = node.type === 'folder' ? 'â–¸' : '';
+    caret.textContent = node.type === 'folder' ? '▸' : '';
     row.appendChild(caret);
 
     const icon = document.createElement('span');
     icon.className = 'tree-icon';
-    icon.textContent = node.type === 'folder' ? '' : 'â–¤';
+    icon.textContent = node.type === 'folder' ? '' : '▤';
     row.appendChild(icon);
 
     const label = document.createElement('span');
@@ -64,7 +64,7 @@ const TREE = (() => {
     thumbImg.className = 'tree-thumbnail';
     thumbImg.style.display = 'none';
     actions.appendChild(thumbImg);
-    setTimeout(() => { if(typeof loadThumbnail === 'function') loadThumbnail(node, thumbImg); }, 0);
+    setTimeout(() => { if (typeof TREE !== 'undefined' && TREE.loadThumbnail) TREE.loadThumbnail(node, thumbImg); }, 0);
     if (node.type === 'board') {
       const tagBtn = document.createElement('button');
       tagBtn.className = 'btn-tool';
@@ -145,7 +145,7 @@ const TREE = (() => {
   async function duplicateBoard(boardId) {
     const original = getNode(boardId);
     if (!original) return;
-    const copy = { ...original, id: uid('b'), name: original.name + ' (cÃ³pia)' };
+    const copy = { ...original, id: uid('b'), name: original.name + ' (cópia)' };
     await DB.put('nodes', copy);
     STATE.nodes.push(copy);
 
@@ -206,7 +206,7 @@ const TREE = (() => {
     const boards = STATE.nodes.filter(n => n.type === 'board' && folderIds.includes(n.parentId));
     const subCount = folderIds.length - 1;
     const msg = (boards.length || subCount)
-      ? `Excluir "${node.name}" tambÃ©m apagarÃ¡ permanentemente ${subCount} subpasta(s) e ${boards.length} board(s) com todas as suas imagens. Esta aÃ§Ã£o nÃ£o pode ser desfeita. Continuar?`
+      ? `Excluir "${node.name}" também apagará permanentemente ${subCount} subpasta(s) e ${boards.length} board(s) com todas as suas imagens. Esta ação não pode ser desfeita. Continuar?`
       : `Excluir a pasta "${node.name}"?`;
     if (!confirm(msg)) return;
 
@@ -288,7 +288,41 @@ const TREE = (() => {
     render();
   }
 
-  return { loadNodes, render, renderTree, createFolder, createBoard };
+  function loadThumbnail(node, imgElement) {
+    if (!node || node.type !== 'board' || !imgElement) return;
+    const show = localStorage.getItem('showThumbnails') !== 'false';
+    if (!show) { imgElement.style.display = 'none'; return; }
+
+    const cached = thumbnailCache.get(node.id);
+    const now = Date.now();
+
+    if (cached && (now - cached.timestamp) < THUMBNAIL_TTL) {
+      imgElement.src = cached.url;
+      imgElement.style.display = 'block';
+      return;
+    }
+
+    if (typeof DB !== 'undefined' && DB.getByIndex) {
+      DB.getByIndex('images', 'boardId', node.id).then(images => {
+        const boardImg = images.find(img => !img.deleted && img.blob);
+        if (boardImg && boardImg.blob) {
+          if (cached && cached.url) {
+            try { URL.revokeObjectURL(cached.url); } catch (e) {}
+          }
+          const newUrl = URL.createObjectURL(boardImg.blob);
+          imgElement.src = newUrl;
+          imgElement.style.display = 'block';
+          thumbnailCache.set(node.id, { url: newUrl, timestamp: now });
+        } else {
+          imgElement.style.display = 'none';
+        }
+      }).catch(() => {
+        imgElement.style.display = 'none';
+      });
+    }
+  }
+
+  return { loadNodes, render, renderTree, createFolder, createBoard, loadThumbnail };
 })();
 
 window.renderTree = function() {
@@ -309,38 +343,4 @@ window.toggleThumbnails = function() {
     const newVal = current === 'false' ? 'true' : 'false';
     localStorage.setItem('showThumbnails', newVal);
     if (typeof TREE !== 'undefined' && TREE.render) TREE.render();
-};
-
-window.loadThumbnail = function(node, imgElement) {
-    if (!node || node.type !== 'board' || !imgElement) return;
-    const show = localStorage.getItem('showThumbnails') !== 'false';
-    if (!show) { imgElement.style.display = 'none'; return; }
-
-    const cached = thumbnailCache.get(node.id);
-    const now = Date.now();
-
-    if (cached && (now - cached.timestamp) < THUMBNAIL_TTL) {
-        imgElement.src = cached.url;
-        imgElement.style.display = 'block';
-        return;
-    }
-
-    if (typeof DB !== 'undefined' && DB.getByIndex) {
-        DB.getByIndex('images', 'boardId', node.id).then(images => {
-            const boardImg = images.find(img => !img.deleted && img.blob);
-            if (boardImg && boardImg.blob) {
-                if (cached && cached.url) {
-                    try { URL.revokeObjectURL(cached.url); } catch (e) {}
-                }
-                const newUrl = URL.createObjectURL(boardImg.blob);
-                imgElement.src = newUrl;
-                imgElement.style.display = 'block';
-                thumbnailCache.set(node.id, { url: newUrl, timestamp: now });
-            } else {
-                imgElement.style.display = 'none';
-            }
-        }).catch(() => {
-            imgElement.style.display = 'none';
-        });
-    }
 };
