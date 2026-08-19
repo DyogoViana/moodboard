@@ -9,8 +9,33 @@
 const IMAGES = (() => {
   const canvas = document.getElementById('canvas');
   const fileInput = document.getElementById('file-input');
+  const GRID_MARGIN = 20;
+  const MAX_COLS = 5;
 
   const els = new Map(); // imgId -> DOM element
+
+  function organizeImagesInGrid(images) {
+    if (!Array.isArray(images) || images.length === 0) return;
+
+    const first = images[0];
+    const cellWidth = (first.width || 280) + GRID_MARGIN;
+    const cellHeight = (first.height || 280) + GRID_MARGIN;
+    const cols = Math.min(images.length, MAX_COLS);
+
+    images.forEach((img, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      img.x = col * cellWidth + GRID_MARGIN;
+      img.y = row * cellHeight + GRID_MARGIN;
+
+      const el = canvas.querySelector(`[data-id="${img.id}"]`);
+      if (el) {
+        el.style.left = img.x + 'px';
+        el.style.top = img.y + 'px';
+      }
+      DB.put('images', img);
+    });
+  }
 
   // rotation + flip combined into one CSS transform. Flip is done purely
   // with scaleX/scaleY on the element — the original image file is never
@@ -26,6 +51,7 @@ const IMAGES = (() => {
     const wrap = document.createElement('div');
     wrap.className = 'board-image';
     wrap.id = 'img-' + imgData.id;
+    wrap.dataset.id = imgData.id;
     wrap.style.left = imgData.x + 'px';
     wrap.style.top = imgData.y + 'px';
     wrap.style.width = imgData.width + 'px';
@@ -37,8 +63,15 @@ const IMAGES = (() => {
     if (imgData.blob) {
       img.src = URL.createObjectURL(imgData.blob);
     } else if (imgData.remoteUrl) {
+      let crossed = true;
       img.crossOrigin = 'anonymous';
       img.src = imgData.remoteUrl;
+      img.onerror = () => {
+        if (!crossed) return;
+        crossed = false;
+        img.removeAttribute('crossorigin');
+        img.src = imgData.remoteUrl;
+      };
     }
     img.draggable = false;
     img.style.width = '100%';
@@ -382,7 +415,7 @@ const IMAGES = (() => {
     STATE.images.push(imgData);
     await DB.put('images', imgData);
     render(imgData);
-    return { ok: true };
+    return { ok: true, imgData };
   }
 
   // a remote image we couldn't (or didn't try to) fetch as bytes — still
@@ -411,6 +444,11 @@ const IMAGES = (() => {
   }
 
   const IMAGE_EXT_RE = /\.(jpe?g|png|gif|webp|avif|bmp)(\?.*)?$/i;
+  const PINIMG_RE = /pinimg\.com/i;
+
+  function isImageUrl(url) {
+    return IMAGE_EXT_RE.test(url) || PINIMG_RE.test(url);
+  }
 
   // try to actually download the bytes (works for most CDNs, including
   // Pinterest's pinimg.com — that's the whole point of the pinimg.com
@@ -467,7 +505,17 @@ const IMAGES = (() => {
   fileInput.addEventListener('change', async (e) => {
     if (!STATE.currentBoardId) { alert('Selecione ou crie um board primeiro.'); return; }
     const files = [...e.target.files].filter(f => f.type.startsWith('image/'));
-    for (const file of files) await addImageBlob(file);
+    const newImages = [];
+
+    for (const file of files) {
+      const result = await addImageBlob(file);
+      if (result && result.imgData) newImages.push(result.imgData);
+    }
+
+    if (newImages.length > 1) {
+      organizeImagesInGrid(newImages);
+    }
+
     e.target.value = '';
   });
 
@@ -492,7 +540,7 @@ const IMAGES = (() => {
     const text = e.clipboardData ? e.clipboardData.getData('text/plain').trim() : '';
     if (!text) return;
 
-    if (/^https?:\/\/\S+$/i.test(text) && IMAGE_EXT_RE.test(text)) {
+    if (/^https?:\/\/\S+$/i.test(text) && isImageUrl(text)) {
       e.preventDefault();
       await addImageFromURL(text);
       return;
@@ -544,8 +592,8 @@ const IMAGES = (() => {
       }
       const text = await file.text();
       const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-      const direct = lines.filter(l => IMAGE_EXT_RE.test(l));
-      const pages = lines.filter(l => !IMAGE_EXT_RE.test(l) && /^https?:\/\//i.test(l));
+      const direct = lines.filter(l => isImageUrl(l));
+      const pages = lines.filter(l => !isImageUrl(l) && /^https?:\/\//i.test(l));
 
       const { added, total } = await addManyFromURLs(direct);
 
@@ -573,7 +621,19 @@ const IMAGES = (() => {
     STATE.images.forEach(render);
   }
 
-  return { render, clearCanvasDom, clearSelection, select, selectWithinBounds, loadBoard, deleteSelected };
+  return {
+    render,
+    clearCanvasDom,
+    clearSelection,
+    select,
+    selectWithinBounds,
+    loadBoard,
+    deleteSelected,
+    addImageBlob,
+    addImageRemote,
+    addImageFromURL,
+    organizeImagesInGrid
+  };
 })();
 
 
@@ -621,9 +681,12 @@ window.exportBoard = async function() {
             const cy = (img.y - minY) * scale;
             const w = (img.width || 100) * scale;
             const h = (img.height || 100) * scale;
+            const scaleX = img.flipH ? -1 : 1;
+            const scaleY = img.flipV ? -1 : 1;
             ctx.save();
             ctx.translate(cx + w/2, cy + h/2);
             ctx.rotate((img.rotation || 0) * Math.PI / 180);
+            ctx.scale(scaleX, scaleY);
             ctx.drawImage(imageEl, -w/2, -h/2, w, h);
             ctx.restore();
         } catch (err) {
