@@ -29,6 +29,18 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+function renderStaticIcons(root = document) {
+    if (!window.ICONS) return;
+    root.querySelectorAll('[data-icon]').forEach(el => {
+        const key = el.dataset.icon;
+        if (!key || !ICONS[key]) return;
+        const target = el.classList.contains('theme-icon') || el.tagName === 'SPAN' || el.tagName === 'BUTTON' || el.tagName === 'LABEL' ? el : null;
+        if (target) {
+            target.innerHTML = ICONS[key];
+        }
+    });
+}
+
 // =========================================
 // ADA UX CRITIQUE: Dynamic Toolbar Grouping & Responsiveness
 // =========================================
@@ -66,7 +78,7 @@ if ('serviceWorker' in navigator) {
     const moreBtn = document.createElement('button');
     moreBtn.className = 'ada-btn-tool';
     moreBtn.innerHTML =
-        '<span class="ada-btn-icon">⋯</span><span class="ada-btn-text">Mais</span>';
+        '<span class="ada-btn-icon">' + (window.ICONS ? ICONS.more : '⋯') + '</span><span class="ada-btn-text">Mais</span>';
 
     const moreMenu = document.createElement('div');
     moreMenu.className = 'ada-more-menu';
@@ -85,6 +97,27 @@ if ('serviceWorker' in navigator) {
 
     const buttons = Array.from(toolbar.querySelectorAll('.btn-tool'));
 
+    function applyIconMarkup(btn, iconKey, defaultLabel) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'ada-btn-icon';
+
+        if (window.ICONS && iconKey && ICONS[iconKey]) {
+            iconSpan.innerHTML = ICONS[iconKey];
+        } else if (defaultLabel) {
+            iconSpan.textContent = defaultLabel;
+        } else {
+            iconSpan.style.display = 'none';
+        }
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'ada-btn-text';
+        textSpan.textContent = btn.dataset.label || '';
+
+        btn.textContent = '';
+        btn.appendChild(iconSpan);
+        btn.appendChild(textSpan);
+    }
+
     buttons.forEach(btn => {
         btn.classList.add('ada-btn-tool');
 
@@ -98,42 +131,46 @@ if ('serviceWorker' in navigator) {
             return;
         }
 
-        if (!btn.querySelector('.ada-btn-text')) {
-            const rawText = btn.textContent.trim();
-            let iconText = '';
-            let cleanText = rawText;
+        const rawText = (btn.textContent || '').trim();
+        const keyMap = {
+            'btn-save': 'save',
+            'btn-add-url': 'link',
+            'btn-export-image': 'image',
+            'btn-front': 'front',
+            'btn-back': 'back',
+            'btn-flip-h': 'flipH',
+            'btn-flip-v': 'flipV',
+            'btn-align-uniform': 'align',
+            'btn-delete': 'trash',
+            'btn-pan-mode': 'move',
+            'btn-zoom-mode': 'zoom',
+            'btn-zoom-out': 'zoomOut',
+            'btn-zoom-in': 'zoomIn',
+            'btn-reset-view': 'reset'
+        };
 
-            const emojiMatch = rawText.match(/^(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})/u);
-            if (emojiMatch) {
-                iconText = emojiMatch[0];
-                cleanText = rawText.slice(iconText.length).trim();
-            } else {
-                const firstChar = [...rawText][0] || '';
-                const isFallbackEmoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(firstChar);
-                if (isFallbackEmoji) {
-                    iconText = firstChar;
-                    cleanText = rawText.slice(firstChar.length).trim();
-                }
-            }
+        const iconKey = btn.dataset.icon || keyMap[btn.id] || null;
+        const cleanText = (btn.dataset.label || rawText).replace(/^[^A-Za-zÀ-ÿ0-9]+|[^A-Za-zÀ-ÿ0-9]+$/g, '').trim();
 
-            if (!cleanText) {
-                iconText = rawText;
-                cleanText = '';
-            }
+        btn.dataset.label = cleanText || btn.dataset.label || rawText;
 
-            btn.textContent = '';
+        btn.textContent = '';
 
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'ada-btn-icon';
-            iconSpan.textContent = iconText;
-            if (!iconText) iconSpan.style.display = 'none';
-            btn.appendChild(iconSpan);
-
-            const textSpan = document.createElement('span');
-            textSpan.className = 'ada-btn-text';
-            textSpan.textContent = cleanText;
-            btn.appendChild(textSpan);
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'ada-btn-icon';
+        if (window.ICONS && iconKey && ICONS[iconKey]) {
+            iconSpan.innerHTML = ICONS[iconKey];
+        } else if (rawText && !cleanText) {
+            iconSpan.textContent = rawText;
+        } else {
+            iconSpan.style.display = 'none';
         }
+        btn.appendChild(iconSpan);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'ada-btn-text';
+        textSpan.textContent = cleanText || '';
+        btn.appendChild(textSpan);
 
         if (primaryIds.includes(btn.id)) {
             btn.classList.add('primary');
@@ -202,6 +239,7 @@ document.querySelectorAll('.panel-tab').forEach(tab => {
 // Toolbar da árvore
 // ==============================================================================
 window.addEventListener('load', () => {
+    renderStaticIcons();
     document
         .getElementById('btn-new-folder')
         ?.addEventListener('click', () => TREE.createFolder(null));

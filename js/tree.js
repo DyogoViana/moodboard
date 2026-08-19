@@ -60,27 +60,27 @@ const TREE = (() => {
 
     const actions = document.createElement('div');
     actions.className = 'tree-row-actions';
-        const thumbImg = document.createElement('img');
-        thumbImg.className = 'tree-thumbnail';
-        thumbImg.style.display = 'none';
-        actions.appendChild(thumbImg);
-        setTimeout(() => { if(typeof loadThumbnail === 'function') loadThumbnail(node, thumbImg); }, 0);
-        if (node.type === 'board') {
-            const tagBtn = document.createElement('button');
-            tagBtn.className = 'btn-tool';
-            tagBtn.textContent = '🔖';
-            tagBtn.title = 'Etiqueta de cliente';
-            tagBtn.onclick = (e) => { e.stopPropagation(); if (typeof editClientTag === 'function') editClientTag(node); };
-            actions.appendChild(tagBtn);
-        }
-    if (node.type === 'folder') {
-      actions.appendChild(makeActionBtn('+', 'Nova subpasta', () => createFolder(node.id)));
-      actions.appendChild(makeActionBtn('â–¤', 'Novo board aqui', () => createBoard(node.id)));
-    } else {
-      actions.appendChild(makeActionBtn('â§‰', 'Duplicar board', () => duplicateBoard(node.id)));
+    const thumbImg = document.createElement('img');
+    thumbImg.className = 'tree-thumbnail';
+    thumbImg.style.display = 'none';
+    actions.appendChild(thumbImg);
+    setTimeout(() => { if(typeof loadThumbnail === 'function') loadThumbnail(node, thumbImg); }, 0);
+    if (node.type === 'board') {
+      const tagBtn = document.createElement('button');
+      tagBtn.className = 'btn-tool';
+      tagBtn.innerHTML = ICONS.tag;
+      tagBtn.title = 'Etiqueta de cliente';
+      tagBtn.onclick = (e) => { e.stopPropagation(); if (typeof editClientTag === 'function') editClientTag(node); };
+      actions.appendChild(tagBtn);
     }
-    actions.appendChild(makeActionBtn('âœŽ', 'Renomear', () => startRename(label, node)));
-    actions.appendChild(makeActionBtn('Ã—', node.type === 'folder' ? 'Excluir pasta' : 'Mover para lixeira', () => deleteNode(node)));
+    if (node.type === 'folder') {
+      actions.appendChild(makeActionBtn('folderPlus', 'Nova subpasta', () => createFolder(node.id)));
+      actions.appendChild(makeActionBtn('boardPlus', 'Novo board aqui', () => createBoard(node.id)));
+    } else {
+      actions.appendChild(makeActionBtn('copy', 'Duplicar board', () => duplicateBoard(node.id)));
+    }
+    actions.appendChild(makeActionBtn('pencil', 'Renomear', () => startRename(label, node)));
+    actions.appendChild(makeActionBtn('x', node.type === 'folder' ? 'Excluir pasta' : 'Mover para lixeira', () => deleteNode(node)));
     row.appendChild(actions);
 
     row.addEventListener('click', (e) => {
@@ -108,8 +108,12 @@ const TREE = (() => {
 
   function makeActionBtn(symbol, title, handler) {
     const b = document.createElement('button');
-    b.textContent = symbol;
     b.title = title;
+    if (window.ICONS && ICONS[symbol]) {
+      b.innerHTML = ICONS[symbol];
+    } else {
+      b.textContent = symbol;
+    }
     b.addEventListener('click', (e) => { e.stopPropagation(); handler(); });
     return b;
   }

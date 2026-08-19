@@ -46,7 +46,7 @@
       <!-- Color panel -->
       <div class="panel hidden" id="panel-color">
         <div class="panel-actions">
-          <button class="btn-chip" id="btn-eye-dropper">💧 Pingar cor</button>
+          <button class="btn-chip" id="btn-eye-dropper" data-icon="droplet">Pingar cor</button>
           <input type="color" id="color-wheel-input" value="#B0402E" title="Escolher cor">
         </div>
         <div class="color-preview" id="color-preview">#B0402E</div>
@@ -54,18 +54,18 @@
       </div>
 
       <div class="sidebar-footer">
-        <button class="btn-ghost" onclick="toggleThumbnails()" title="Alternar miniaturas na árvore">
-          <span class="theme-icon">🖼</span> Miniaturas
+        <button class="btn-ghost" onclick="toggleThumbnails()" data-icon="image" title="Alternar miniaturas na árvore">
+          <span class="theme-icon" data-icon="image"></span> Miniaturas
         </button>
-        <button id="btn-export" class="btn-ghost" title="Baixar backup completo (todas as pastas, boards e imagens)">
-          <span class="theme-icon">⬇</span> Exportar backup
+        <button id="btn-export" class="btn-ghost" data-icon="download" title="Baixar backup completo (todas as pastas, boards e imagens)">
+          <span class="theme-icon" data-icon="download"></span> Exportar backup
         </button>
-        <label id="btn-import" class="btn-ghost" title="Restaurar de um arquivo de backup (soma ao que já existe, não apaga nada)">
-          <span class="theme-icon">⬆</span> Importar backup
+        <label id="btn-import" class="btn-ghost" data-icon="upload" title="Restaurar de um arquivo de backup (soma ao que já existe, não apaga nada)">
+          <span class="theme-icon" data-icon="upload"></span> Importar backup
           <input type="file" id="import-input" accept="application/json,.json">
         </label>
-        <button id="btn-theme" class="btn-ghost" title="Alternar tema">
-          <span class="theme-icon">◐</span> <span id="theme-label">Modo claro</span>
+        <button id="btn-theme" class="btn-ghost" data-icon="sun" title="Alternar tema">
+          <span class="theme-icon" data-icon="sun"></span> <span id="theme-label">Modo claro</span>
         </button>
       </div>
     </aside>
@@ -81,50 +81,50 @@
         </div>
 
         <div class="toolbar-group toolbar-tools hidden" id="tools-container">
-          <button class="btn-tool btn-tool-primary" id="btn-save" title="Salvar board (Ctrl+S)">💾 Salvar</button>
+          <button class="btn-tool btn-tool-primary" id="btn-save" data-icon="save" title="Salvar board (Ctrl+S)">Salvar</button>
 
           <span class="divider"></span>
 
-          <label class="btn-tool" title="Adicionar imagens do computador">
+          <label class="btn-tool" data-icon="addImage" title="Adicionar imagens do computador">
             Adicionar imagens
             <input type="file" id="file-input" multiple accept="image/*">
           </label>
-          <button class="btn-tool" id="btn-add-url" title="Adicionar por link de imagem direto ou colar HTML de um board do Pinterest">🔗 Colar link</button>
-          <label class="btn-tool" title="Importar lista de links de um arquivo .txt (um link por linha)">
-            📄 Lista de links
+          <button class="btn-tool" id="btn-add-url" data-icon="link" title="Adicionar por link de imagem direto ou colar HTML de um board do Pinterest">Colar link</button>
+          <label class="btn-tool" data-icon="list" title="Importar lista de links de um arquivo .txt (um link por linha)">
+            Lista de links
             <input type="file" id="links-txt-input" accept=".txt,text/plain">
           </label>
 
           <span class="divider"></span>
 
-          <button class="btn-tool" id="btn-export-image" title="Exportar este board como PNG" onclick="window.exportBoard()">🖼 Exportar board</button>
+          <button class="btn-tool" id="btn-export-image" data-icon="image" title="Exportar este board como PNG" onclick="window.exportBoard()">Exportar board</button>
 
           <span class="divider"></span>
 
-          <button class="btn-tool" id="btn-front" title="Trazer para frente">Trazer p/ frente</button>
-          <button class="btn-tool" id="btn-back" title="Enviar para trás">Enviar p/ trás</button>
+          <button class="btn-tool" id="btn-front" data-icon="front" title="Trazer para frente">Trazer p/ frente</button>
+          <button class="btn-tool" id="btn-back" data-icon="back" title="Enviar para trás">Enviar p/ trás</button>
 
           <span class="divider"></span>
 
-          <button class="btn-tool" id="btn-flip-h" title="Espelhar horizontalmente">↔ Espelhar H</button>
-          <button class="btn-tool" id="btn-flip-v" title="Espelhar verticalmente">↕ Espelhar V</button>
-          <button class="btn-tool" id="btn-align-uniform" title="Alinhar e uniformizar tamanho das imagens selecionadas (2+)">▦ Alinhar/Uniformizar</button>
+          <button class="btn-tool" id="btn-flip-h" data-icon="flipH" title="Espelhar horizontalmente">Espelhar H</button>
+          <button class="btn-tool" id="btn-flip-v" data-icon="flipV" title="Espelhar verticalmente">Espelhar V</button>
+          <button class="btn-tool" id="btn-align-uniform" data-icon="align" title="Alinhar e uniformizar tamanho das imagens selecionadas (2+)">Alinhar/Uniformizar</button>
 
           <span class="divider"></span>
 
-          <button class="btn-tool btn-tool-danger" id="btn-delete" title="Mover para lixeira (Del)">Excluir</button>
+          <button class="btn-tool btn-tool-danger" id="btn-delete" data-icon="trash" title="Mover para lixeira (Del)">Excluir</button>
 
           <span class="divider"></span>
 
-          <button class="btn-tool" id="btn-pan-mode" title="Ferramenta Mão — arrastar para navegar (atalho: H)">✋ Mover</button>
-          <button class="btn-tool" id="btn-zoom-mode" title="Ferramenta Zoom — clique para ampliar, Alt+clique para reduzir, arraste para enquadrar (atalho: Z)">🔍 Zoom</button>
+          <button class="btn-tool" id="btn-pan-mode" data-icon="move" title="Ferramenta Mão — arrastar para navegar (atalho: H)">Mover</button>
+          <button class="btn-tool" id="btn-zoom-mode" data-icon="zoom" title="Ferramenta Zoom — clique para ampliar, Alt+clique para reduzir, arraste para enquadrar (atalho: Z)">Zoom</button>
 
           <span class="divider"></span>
 
-          <button class="btn-tool" id="btn-zoom-out" title="Reduzir zoom">−</button>
+          <button class="btn-tool" id="btn-zoom-out" data-icon="zoomOut" title="Reduzir zoom">−</button>
           <span id="zoom-level" class="zoom-readout">100%</span>
-          <button class="btn-tool" id="btn-zoom-in" title="Aumentar zoom">+</button>
-          <button class="btn-tool" id="btn-reset-view" title="Recentralizar na seleção (ou no palco todo, se nada estiver selecionado)">Recentralizar</button>
+          <button class="btn-tool" id="btn-zoom-in" data-icon="zoomIn" title="Aumentar zoom">+</button>
+          <button class="btn-tool" id="btn-reset-view" data-icon="reset" title="Recentralizar na seleção (ou no palco todo, se nada estiver selecionado)">Recentralizar</button>
         </div>
 
         <div class="toolbar-group toolbar-right"></div>
@@ -151,6 +151,7 @@
     </main>
   </div>
 
+  <script src="js/icons.js"></script>
   <script src="js/db.js"></script>
   <script src="js/state.js"></script>
   <script src="js/theme.js"></script>

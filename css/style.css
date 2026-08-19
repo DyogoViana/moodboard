@@ -1,5 +1,5 @@
-/* ==========================================================================
-   MOODBOARD STUDIO — design tokens
+﻿/* ==========================================================================
+   MOODBOARD STUDIO â€” design tokens
    Dark mode: raw canvas / graphite atelier.
    Light mode: unbleached linen / carbon pencil.
    Accent: muted ink-red, used only for selection & active state.
@@ -265,6 +265,19 @@ button{font-family:inherit;}
   border-radius:6px;
 }
 .btn-ghost:hover{color:var(--text);background:var(--hover);} 
+.theme-icon,
+.ada-btn-icon,
+.tree-row-actions button,
+.btn-ghost .theme-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.theme-icon svg,
+.ada-btn-icon svg,
+.tree-row-actions button svg,
+.btn-ghost .theme-icon svg,
+.collapse-tab svg{
+  width:14px;height:14px;display:block;
+}
 .theme-icon{font-size:13px;}
 
 .collapse-tab{
@@ -282,7 +295,11 @@ button{font-family:inherit;}
   transition:left .22s ease, box-shadow .2s ease;
   font-size:12px;
   box-shadow:var(--shadow);
-.collapse-tab:hover{color:var(--text);}
+}
+
+.collapse-tab:hover{
+  color:var(--text);
+}
 #sidebar.collapsed ~ .collapse-tab{left:0;transform:translateX(0);}
 
 /* ============ WORKSPACE ============ */
@@ -627,7 +644,7 @@ input[type=file]{display:none;}
 
 /* Responsividade (Kimi/ADA) */
 @media (max-width: 768px) {
-    .ada-btn-text { display: none; } /* Esconde texto, mantém ícones */
+    .ada-btn-text { display: none; } /* Esconde texto, mantÃ©m Ã­cones */
     .ada-btn-tool { padding: 8px; }
     .ada-top-bar { padding: 0 8px; }
 }
