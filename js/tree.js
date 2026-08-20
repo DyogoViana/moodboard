@@ -36,12 +36,12 @@ const TREE = (() => {
     wrap.dataset.id = node.id;
     wrap.dataset.type = node.type;
 
-    const row = document.createElement('div');
-    row.className = 'tree-row' + (node.id === STATE.currentBoardId ? ' active' : '');
-    row.draggable = true;
+      const row = document.createElement('div');
+      row.className = 'tree-row' + (node.id === STATE.currentBoardId ? ' active' : '');
+      row.draggable = true;
 
-    const kids = node.type === 'folder' ? childrenOf(node.id) : [];
-    const isOpen = expanded.has(node.id);
+      const kids = node.type === 'folder' ? childrenOf(node.id) : [];
+      const isOpen = expanded.has(node.id);
 
     const caret = document.createElement('span');
     caret.className = 'tree-caret ' + (node.type === 'folder' ? (isOpen ? 'open' : '') : 'leaf');
@@ -61,10 +61,16 @@ const TREE = (() => {
     const actions = document.createElement('div');
     actions.className = 'tree-row-actions';
     const thumbImg = document.createElement('img');
-    thumbImg.className = 'tree-thumbnail';
+    thumbImg.className = 'tree-thumb';
     thumbImg.style.display = 'none';
     actions.appendChild(thumbImg);
-    setTimeout(() => { if (typeof TREE !== 'undefined' && TREE.loadThumbnail) TREE.loadThumbnail(node, thumbImg); }, 0);
+    setTimeout(() => {
+      try {
+        if (typeof TREE !== 'undefined' && TREE.loadThumbnail) TREE.loadThumbnail(node, thumbImg);
+      } catch (error) {
+        console.warn('Falha ao carregar miniatura:', error);
+      }
+    }, 0);
     if (node.type === 'board') {
       const tagBtn = document.createElement('button');
       tagBtn.className = 'btn-tool';
@@ -220,6 +226,7 @@ const TREE = (() => {
     STATE.nodes = STATE.nodes.filter(n => !folderIds.includes(n.id) && !(n.type === 'board' && folderIds.includes(n.parentId)));
     if (boards.some(b => b.id === STATE.currentBoardId)) {
       STATE.currentBoardId = null;
+      try { localStorage.removeItem('lastBoardId'); } catch (_) {}
       IMAGES.clearCanvasDom();
       document.getElementById('board-title').textContent = 'Selecione ou crie um board';
       document.getElementById('tools-container').classList.add('hidden');
@@ -276,6 +283,7 @@ const TREE = (() => {
     console.log("Antes:", document.getElementById('tools-container').className);
 
     STATE.currentBoardId = node.id;
+    try { localStorage.setItem('lastBoardId', node.id); } catch (_) {}
     document.getElementById('board-title').textContent = node.name;
     document.getElementById('tools-container').classList.remove('hidden');
     console.log("Depois:", document.getElementById('tools-container').className);
@@ -302,27 +310,59 @@ const TREE = (() => {
       return;
     }
 
-    if (typeof DB !== 'undefined' && DB.getByIndex) {
-      DB.getByIndex('images', 'boardId', node.id).then(images => {
-        const boardImg = images.find(img => !img.deleted && img.blob);
-        if (boardImg && boardImg.blob) {
-          if (cached && cached.url) {
-            try { URL.revokeObjectURL(cached.url); } catch (e) {}
-          }
-          const newUrl = URL.createObjectURL(boardImg.blob);
-          imgElement.src = newUrl;
-          imgElement.style.display = 'block';
-          thumbnailCache.set(node.id, { url: newUrl, timestamp: now });
-        } else {
-          imgElement.style.display = 'none';
-        }
-      }).catch(() => {
+    if (typeof DB === 'undefined' || !DB.getByIndex) return;
+    DB.getByIndex('images', 'boardId', node.id).then(async images => {
+      const boardImages = images.filter(img => !img.deleted && img.blob).slice(0, 6);
+      if (!boardImages.length) {
         imgElement.style.display = 'none';
-      });
-    }
+        return;
+      }
+      const width = 128;
+      const height = 96;
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = width;
+      thumbCanvas.height = height;
+      const context = thumbCanvas.getContext('2d');
+      context.fillStyle = '#f4f0e8';
+      context.fillRect(0, 0, width, height);
+      const loaded = [];
+      for (const image of boardImages) {
+        try {
+          const bitmap = await createImageBitmap(image.blob);
+          loaded.push({ image, bitmap });
+        } catch (_) {}
+      }
+      if (!loaded.length) {
+        imgElement.style.display = 'none';
+        return;
+      }
+      const minX = Math.min(...loaded.map(item => item.image.x));
+      const minY = Math.min(...loaded.map(item => item.image.y));
+      const maxX = Math.max(...loaded.map(item => item.image.x + (item.image.width || 1)));
+      const maxY = Math.max(...loaded.map(item => item.image.y + (item.image.height || item.image.width || 1)));
+      const fit = Math.min(width / Math.max(maxX - minX, 1), height / Math.max(maxY - minY, 1));
+      for (const item of loaded) {
+        const image = item.image;
+        context.save();
+        const imageWidth = (image.width || item.bitmap.width) * fit;
+        const imageHeight = (image.height || item.bitmap.height) * fit;
+        context.translate((image.x - minX) * fit + imageWidth / 2, (image.y - minY) * fit + imageHeight / 2);
+        context.rotate((image.rotation || 0) * Math.PI / 180);
+        context.drawImage(item.bitmap, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
+        context.restore();
+        item.bitmap.close();
+      }
+      const dataUrl = thumbCanvas.toDataURL('image/png');
+      imgElement.src = dataUrl;
+      imgElement.style.display = 'block';
+      thumbnailCache.set(node.id, { url: dataUrl, timestamp: now });
+    }).catch(error => {
+      console.warn('Falha ao gerar miniatura:', error);
+      imgElement.style.display = 'none';
+    });
   }
 
-  return { loadNodes, render, renderTree, createFolder, createBoard, loadThumbnail };
+  return { loadNodes, render, renderTree, createFolder, createBoard, loadThumbnail, openBoardUI };
 })();
 
 window.renderTree = function() {

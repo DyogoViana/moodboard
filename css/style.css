@@ -284,14 +284,14 @@ button{font-family:inherit;}
   position:absolute;
   left:272px;
   top:14px;
-  transform:translateX(-50%);
+  transform:translateX(-100%);
   width:20px;height:28px;
   border-radius:6px;
   border:1px solid var(--border-strong);
   background:var(--bg-panel-raised);
   color:var(--text-muted);
   cursor:pointer;
-  z-index:21;
+  z-index:110;
   transition:left .22s ease, box-shadow .2s ease;
   font-size:12px;
   box-shadow:var(--shadow);
@@ -300,7 +300,8 @@ button{font-family:inherit;}
 .collapse-tab:hover{
   color:var(--text);
 }
-#sidebar.collapsed ~ .collapse-tab{left:0;transform:translateX(0);}
+#app.sidebar-collapsed #sidebar{margin-left:-272px;}
+#app.sidebar-collapsed .collapse-tab{left:0;transform:translateX(0);}
 
 /* ============ WORKSPACE ============ */
 
@@ -463,9 +464,18 @@ input[type=file]{display:none;}
   cursor:pointer;box-shadow:var(--shadow);
   user-select:none;
 }
+.save-status{
+  color:var(--text-muted);font-family:var(--font-mono);font-size:10px;
+  white-space:nowrap;
+}
+.save-status.save-status-error{color:#b3261e;}
 #diagnostics-badge.diag-ok{background:#2e5a3e;color:#d8f5df;}
 #diagnostics-badge.diag-warn{background:#8a6d1f;color:#fff6df;}
 #diagnostics-badge.diag-fail{background:var(--ink);color:#fff;}
+.tree-thumb{
+  width:64px;height:48px;object-fit:cover;border-radius:3px;flex-shrink:0;
+  background:var(--bg-canvas);
+}
 #diagnostics-panel{
   position:fixed;top:36px;right:8px;z-index:999;
   background:var(--bg-panel-raised);border:1px solid var(--border-strong);
@@ -478,6 +488,10 @@ input[type=file]{display:none;}
 #diagnostics-panel .diag-stamp{
   font-family:var(--font-mono);font-size:10px;color:var(--text-muted);
   margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+@media (max-width: 768px){
+  #diagnostics-badge{top:62px;right:8px;}
+  #diagnostics-panel{top:90px;right:8px;}
 }
 
 /* ============ IMPORTAÇÃO PINTEREST ============ */
@@ -699,9 +713,9 @@ input[type=file]{display:none;}
 }
 .ada-more-menu {
     display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
+  position: fixed;
+  right: auto;
+  top: auto;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -710,10 +724,12 @@ input[type=file]{display:none;}
     z-index: 101;
     flex-direction: column;
     gap: 4px;
-    min-width: 160px;
+    min-width: 220px;
 }
 .ada-more-menu.open { display: flex; }
 .ada-more-menu .ada-btn-tool { width: 100%; justify-content: flex-start; }
+.ada-more-menu .ada-btn-text { display: inline; }
+.ada-more-menu .ada-tools-secondary { display:flex; flex-direction:column; align-items:stretch; gap:4px; }
 
 /* Responsividade (Kimi/ADA) */
 @media (max-width: 768px) {

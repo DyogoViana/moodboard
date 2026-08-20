@@ -1,7 +1,7 @@
 // Bump CACHE_NAME every time you ship a new version of the app files.
 // Without this, the browser would keep serving whatever was cached the
 // first time it installed, forever — updates would silently never show up.
-const CACHE_NAME = 'moodboard-v7';
+const CACHE_NAME = 'moodboard-v9';
 const urlsToCache = [
   './',
   './index.html',

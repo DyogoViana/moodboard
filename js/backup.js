@@ -14,6 +14,17 @@
    ========================================================================== */
 
 const BACKUP = (() => {
+  let exportTimer = null;
+  let lastSerialized = '';
+  let pendingSerialized = '';
+  let lastExportOk = false;
+
+  function setSaveStatus(text, failed) {
+    const status = document.getElementById('save-status');
+    if (!status) return;
+    status.textContent = text;
+    status.classList.toggle('save-status-error', !!failed);
+  }
 
   function blobToBase64(blob) {
     return new Promise((resolve, reject) => {
@@ -30,6 +41,25 @@ const BACKUP = (() => {
   }
 
   async function exportBackup() {
+    const json = await serializeBackup();
+    const payload = JSON.parse(json);
+    const { nodes, images, palette } = payload;
+
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `moodboard-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    return { nodeCount: nodes.length, imageCount: images.length, paletteCount: palette.length };
+  }
+
+  async function serializeBackup() {
     const nodes = await DB.getAll('nodes');
     const rawImages = await DB.getAll('images');
     const palette = await DB.getAll('palette');
@@ -53,19 +83,50 @@ const BACKUP = (() => {
       palette,
     };
 
-    const json = JSON.stringify(payload);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const stamp = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `moodboard-backup-${stamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    return JSON.stringify(payload);
+  }
 
-    return { nodeCount: nodes.length, imageCount: images.length, paletteCount: palette.length };
+  async function pushExport() {
+    const json = pendingSerialized || await serializeBackup();
+    pendingSerialized = '';
+    if (json === lastSerialized && lastExportOk) return true;
+    try {
+      const response = await fetch('/export-backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: json,
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      lastSerialized = json;
+      lastExportOk = true;
+      const now = new Date().toLocaleTimeString('pt-BR', { hour12: false });
+      setSaveStatus(`salvo ${now}`, false);
+      if (typeof DIAGNOSTICS !== 'undefined' && DIAGNOSTICS.setExportState) DIAGNOSTICS.setExportState(true);
+      return true;
+    } catch (error) {
+      lastExportOk = false;
+      setSaveStatus('export falhou', true);
+      if (typeof DIAGNOSTICS !== 'undefined' && DIAGNOSTICS.setExportState) DIAGNOSTICS.setExportState(false);
+      console.warn('Exportação contínua falhou:', error);
+      return false;
+    }
+  }
+
+  function scheduleExport() {
+    lastExportOk = false;
+    serializeBackup().then(json => { pendingSerialized = json; }).catch(error => {
+      console.warn('Não foi possível preparar exportação:', error);
+    });
+    clearTimeout(exportTimer);
+    exportTimer = setTimeout(() => { pushExport(); }, 1500);
+  }
+
+  function sendPendingExport() {
+    if (lastExportOk && !pendingSerialized) return;
+    if (navigator.sendBeacon) {
+      const payload = pendingSerialized || lastSerialized;
+      if (payload) navigator.sendBeacon('/export-backup', new Blob([payload], { type: 'application/json' }));
+    }
   }
 
   async function importBackup(file) {
@@ -111,5 +172,8 @@ const BACKUP = (() => {
     }
   }
 
-  return { exportBackup, importBackup, requestPersistence };
+  window.scheduleExportHook = scheduleExport;
+  window.addEventListener('pagehide', sendPendingExport);
+
+  return { exportBackup, importBackup, requestPersistence, serializeBackup, pushExport, scheduleExport };
 })();

@@ -10,9 +10,58 @@ const IMAGES = (() => {
   const canvas = document.getElementById('canvas');
   const fileInput = document.getElementById('file-input');
   const GRID_MARGIN = 20;
-  const MAX_COLS = 5;
+  const MAX_COLS = 4;
+  const MIN_TARGET_WIDTH = 140;
+  const MAX_TARGET_WIDTH = 280;
 
   const els = new Map(); // imgId -> DOM element
+  const gridOrigins = new Map();
+
+  function getIncrementalGridSlot(images, aspect) {
+    const scale = CANVAS.getTransform().scale || 1;
+    const worldWidth = Math.max(1, canvas.parentElement.clientWidth / scale);
+    const targetW = Math.max(MIN_TARGET_WIDTH, Math.min(
+      MAX_TARGET_WIDTH,
+      Math.floor(worldWidth / 3) - GRID_MARGIN
+    ));
+    const cols = Math.max(2, Math.min(
+      MAX_COLS,
+      Math.floor(worldWidth / (targetW + GRID_MARGIN))
+    ));
+    const cellW = targetW + GRID_MARGIN;
+    const cellH = Math.round(targetW * 1.35) + GRID_MARGIN;
+    let origin = gridOrigins.get(STATE.currentBoardId);
+    if (!origin) {
+      origin = CANVAS.viewportCenterWorld();
+      gridOrigins.set(STATE.currentBoardId, origin);
+    }
+
+    const overlaps = (x, y, width, height) => images.some(image => {
+      const imageWidth = image.width || targetW;
+      const imageHeight = image.height || imageWidth;
+      return x < image.x + imageWidth + GRID_MARGIN &&
+        x + width + GRID_MARGIN > image.x &&
+        y < image.y + imageHeight + GRID_MARGIN &&
+        y + height + GRID_MARGIN > image.y;
+    });
+
+    for (let index = 0; index < images.length + 1; index++) {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      const x = origin.x + col * cellW;
+      const y = origin.y + row * cellH;
+      if (!overlaps(x, y, targetW, targetW * aspect)) {
+        return { x, y, width: targetW };
+      }
+    }
+
+    const index = images.length;
+    return {
+      x: origin.x + (index % cols) * cellW,
+      y: origin.y + Math.floor(index / cols) * cellH,
+      width: targetW,
+    };
+  }
 
   function organizeImagesInGrid(images) {
     if (!Array.isArray(images) || images.length === 0) return;
@@ -35,6 +84,10 @@ const IMAGES = (() => {
       }
       DB.put('images', img);
     });
+  }
+
+  function organizeCurrentBoard() {
+    organizeImagesInGrid(STATE.images.filter(image => !image.deleted));
   }
 
   // rotation + flip combined into one CSS transform. Flip is done purely
@@ -84,6 +137,9 @@ const IMAGES = (() => {
         wrap.style.height = imgData.height + 'px';
       }
     };
+    img.addEventListener('error', () => {
+      window.MOODBOARD_IMAGE_FAILURES = (window.MOODBOARD_IMAGE_FAILURES || 0) + 1;
+    });
     wrap.appendChild(img);
 
     if (imgData.zIndex > STATE.highestZIndex) STATE.highestZIndex = imgData.zIndex;
@@ -389,6 +445,8 @@ const IMAGES = (() => {
   }
   const btnAlign = document.getElementById('btn-align-uniform');
   if (btnAlign) btnAlign.addEventListener('click', alignAndUniformSize);
+  const btnOrganize = document.getElementById('btn-organize-grid');
+  if (btnOrganize) btnOrganize.addEventListener('click', organizeCurrentBoard);
 
   // ---- shared "add one image to the open board" core ----
   // every entry point (upload, paste, URL, HTML parse, .txt list) funnels
@@ -398,16 +456,17 @@ const IMAGES = (() => {
     STATE.highestZIndex++;
     const bmp = await createImageBitmap(blob).catch(() => null);
     const aspect = bmp ? bmp.height / bmp.width : 1;
-    const width = 280;
-    const center = atWorldPos || CANVAS.viewportCenterWorld();
+    const slot = atWorldPos
+      ? { x: atWorldPos.x, y: atWorldPos.y, width: MAX_TARGET_WIDTH }
+      : getIncrementalGridSlot(STATE.images, aspect);
     const imgData = {
       id: uid('img'),
       boardId: STATE.currentBoardId,
       blob,
-      x: center.x + (Math.random() * 360 - 180),
-      y: center.y + (Math.random() * 360 - 180),
-      width,
-      height: width * aspect,
+      x: slot.x,
+      y: slot.y,
+      width: slot.width,
+      height: slot.width * aspect,
       rotation: 0,
       zIndex: STATE.highestZIndex,
       deleted: false,
@@ -424,15 +483,15 @@ const IMAGES = (() => {
   async function addImageRemote(url) {
     if (!STATE.currentBoardId) return { ok: false, reason: 'no-board' };
     STATE.highestZIndex++;
-    const center = CANVAS.viewportCenterWorld();
+    const slot = getIncrementalGridSlot(STATE.images, 1);
     const imgData = {
       id: uid('img'),
       boardId: STATE.currentBoardId,
       remoteUrl: url,
-      x: center.x + (Math.random() * 360 - 180),
-      y: center.y + (Math.random() * 360 - 180),
-      width: 280,
-      height: 280,
+      x: slot.x,
+      y: slot.y,
+      width: slot.width,
+      height: slot.width,
       rotation: 0,
       zIndex: STATE.highestZIndex,
       deleted: false,
@@ -734,7 +793,8 @@ const IMAGES = (() => {
     addImageBlob,
     addImageRemote,
     addImageFromURL,
-    organizeImagesInGrid
+    organizeImagesInGrid,
+    organizeCurrentBoard
   };
 })();
 
@@ -797,14 +857,18 @@ window.exportBoard = async function() {
         }
     }
 
-    canvas.toBlob(blob => {
+    await new Promise((resolve, reject) => canvas.toBlob(blob => {
+      if (!blob) { reject(new Error('Não foi possível gerar PNG')); return; }
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'board-export.png';
+      document.body.appendChild(a);
         a.click();
+      a.remove();
         URL.revokeObjectURL(url);
-    }, 'image/png');
+      resolve();
+    }, 'image/png'));
 
     if (failedUrls > 0) {
         alert(`Exportação concluída, mas ${failedUrls} imagem(ns) com link externo falharam (provável bloqueio CORS).`);

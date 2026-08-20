@@ -23,12 +23,13 @@ const DIAGNOSTICS = (() => {
   const APP_VERSION = 'v1.2'; // bump alongside VERSION.txt
 
   let results = []; // { code, level, message }
+  let exportState = null;
 
   function add(code, level, condition, message) {
     if (!condition) results.push({ code, level, message });
   }
 
-  function run() {
+  async function run() {
     results = [];
 
     // ---- CRITICAL: core modules failed to load at all ----
@@ -59,16 +60,34 @@ const DIAGNOSTICS = (() => {
     const visibleText = document.body.innerText + JSON.stringify([...document.querySelectorAll('[title]')].map(e => e.title));
     add('MB-040', 'info', !/Ctrl\/Cmd|Cmd\+/.test(visibleText), 'Ainda existe referência a "Cmd" em algum texto visível (deveria ser só "Ctrl", ambiente é Windows).');
 
+    let probeOk = false;
+    try {
+      probeOk = await DB.probe();
+    } catch (_) {}
+    add('MB-060', 'critical', probeOk, 'IndexedDB não confirmou escrita e leitura do probe.');
+
+    add('MB-061', 'warning', exportState === true, exportState === false
+      ? 'Última exportação falhou.'
+      : 'Ainda não existe uma exportação contínua confirmada.');
+
+    const imageFailures = window.MOODBOARD_IMAGE_FAILURES || 0;
+    add('MB-062', 'warning', imageFailures === 0, `${imageFailures} imagem(ns) falharam ao carregar desde o início.`);
+
     render();
 
     // ---- WARNING: multiple service workers fighting over cache (async) ----
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        add('MB-050', 'warning', regs.length <= 1,
-          `${regs.length} service workers registrados ao mesmo tempo — favorece cache antigo grudado. DevTools → Application → Service Workers → Unregister todos, depois recarregar.`);
-        render();
-      }).catch(() => {});
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        const origin = window.location.origin;
+        const activeSameOrigin = regs.some(reg => reg.active && new URL(reg.scope).origin === origin);
+        add('MB-050', 'warning', regs.length === 1 && activeSameOrigin,
+          `${regs.length} service worker(s) registrado(s); ativo same-origin: ${activeSameOrigin}.`);
+      } catch (_) {
+        add('MB-050', 'warning', false, 'Não foi possível consultar o Service Worker ativo.');
+      }
     }
+    render();
   }
 
   const LEVEL_ICON = { critical: '🔴', warning: '🟡', info: '🔵' };
@@ -90,7 +109,10 @@ const DIAGNOSTICS = (() => {
     const criticals = results.filter(r => r.level === 'critical').length;
     const ok = results.length === 0;
     badge.className = ok ? 'diag-ok' : (criticals > 0 ? 'diag-fail' : 'diag-warn');
-    badge.textContent = ok ? '✓ Diagnóstico OK' : `⚠ ${results.length} problema(s)`;
+    badge.textContent = ok ? '✓ salvo' : (criticals > 0 ? '✗ diagnóstico' : '⚠ diagnóstico');
+    badge.title = results.length
+      ? results.map(result => `${result.code}: ${result.message}`).join('\n')
+      : 'Tudo certo';
 
     let panel = document.getElementById('diagnostics-panel');
     if (!panel) {
@@ -136,7 +158,15 @@ const DIAGNOSTICS = (() => {
     URL.revokeObjectURL(url);
   }
 
-  return { run };
+  function setExportState(ok) {
+    exportState = ok;
+    run();
+  }
+
+  return { run, setExportState };
 })();
 
-window.addEventListener('load', () => setTimeout(DIAGNOSTICS.run, 400));
+window.addEventListener('load', () => {
+  setTimeout(DIAGNOSTICS.run, 400);
+  setInterval(DIAGNOSTICS.run, 5000);
+});

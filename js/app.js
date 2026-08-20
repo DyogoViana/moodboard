@@ -34,9 +34,16 @@ function renderStaticIcons(root = document) {
     root.querySelectorAll('[data-icon]').forEach(el => {
         const key = el.dataset.icon;
         if (!key || !ICONS[key]) return;
-        const target = el.classList.contains('theme-icon') || el.tagName === 'SPAN' || el.tagName === 'BUTTON' || el.tagName === 'LABEL' ? el : null;
+        if (el.classList.contains('ada-btn-tool')) return;
+        const target = el.classList.contains('theme-icon') || el.tagName === 'SPAN' ? el : null;
         if (target) {
+            const visibleText = target.tagName === 'BUTTON' || target.tagName === 'LABEL'
+                ? [...target.childNodes].filter(node => node.nodeType === Node.TEXT_NODE).map(node => node.textContent).join('').trim()
+                : '';
+            const fileInput = target.querySelector('input[type="file"]');
             target.innerHTML = ICONS[key];
+            if (visibleText) target.appendChild(document.createTextNode(` ${visibleText}`));
+            if (fileInput) target.appendChild(fileInput);
         }
     });
 }
@@ -64,7 +71,9 @@ function renderStaticIcons(root = document) {
         'btn-zoom-out',
         'btn-reset-view',
         'btn-front',
-        'btn-back'
+        'btn-back',
+        'btn-export-image',
+        'btn-organize-grid'
     ];
 
     const primaryContainer = document.createElement('div');
@@ -89,11 +98,17 @@ function renderStaticIcons(root = document) {
 
     moreBtn.addEventListener('click', e => {
         e.stopPropagation();
+        const rect = moreBtn.getBoundingClientRect();
+        moreMenu.style.left = `${Math.max(8, rect.left)}px`;
+        moreMenu.style.top = `${rect.bottom + 6}px`;
         moreMenu.classList.toggle('open');
     });
 
     document.addEventListener('click', () => {
         moreMenu.classList.remove('open');
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') moreMenu.classList.remove('open');
     });
 
     const buttons = Array.from(toolbar.querySelectorAll('.btn-tool'));
@@ -137,6 +152,7 @@ function renderStaticIcons(root = document) {
             'btn-save': 'save',
             'btn-add-url': 'link',
             'btn-export-image': 'image',
+            'btn-organize-grid': 'align',
             'btn-front': 'front',
             'btn-back': 'back',
             'btn-flip-h': 'flipH',
@@ -186,8 +202,25 @@ function renderStaticIcons(root = document) {
         primaryContainer.appendChild(moreDropdown);
     }
 
+    const saveStatus = document.getElementById('save-status');
     toolbar.innerHTML = '';
     toolbar.appendChild(primaryContainer);
+    if (saveStatus) primaryContainer.appendChild(saveStatus);
+
+    const collapseButton = document.getElementById('btn-collapse-sidebar');
+    const updateCollapseIcon = () => {
+        const collapsed = document.getElementById('app').classList.contains('sidebar-collapsed');
+        collapseButton.innerHTML = window.ICONS ? (collapsed ? ICONS.chevRight : ICONS.chevLeft) : '';
+        collapseButton.title = collapsed ? 'Expandir menu' : 'Recolher menu';
+        collapseButton.setAttribute('aria-label', collapseButton.title);
+    };
+    if (collapseButton) {
+        updateCollapseIcon();
+        collapseButton.addEventListener('click', () => {
+            document.getElementById('app').classList.toggle('sidebar-collapsed');
+            updateCollapseIcon();
+        });
+    }
 
     const fileInput = document.getElementById('file-input');
     if (fileInput && typeof IMAGES !== 'undefined') {
@@ -252,6 +285,28 @@ window.addEventListener('load', () => {
     document
         .getElementById('btn-theme')
         ?.addEventListener('click', () => THEME.toggle());
+
+    const explicitSave = () => {
+        if (typeof BACKUP === 'undefined' || !BACKUP.pushExport) return;
+        BACKUP.pushExport().then(ok => {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = ok ? 'Board salvo' : 'Falha ao salvar exportação';
+            toast.classList.remove('hidden');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.classList.add('hidden'), 180);
+            }, 1800);
+        });
+    };
+    document.getElementById('btn-save')?.addEventListener('click', explicitSave);
+    window.addEventListener('keydown', e => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+            e.preventDefault();
+            explicitSave();
+        }
+    });
 });
 
 // ==========================================================================
@@ -322,3 +377,44 @@ window.addEventListener('load', () => {
         apply();
     }
 })();
+
+// --- boot: open DB, load nodes, and restore last opened board ---
+(async function boot() {
+    if (typeof THEME !== 'undefined' && THEME.init) {
+        try { THEME.init(); } catch (e) { console.error('THEME.init error', e); }
+    }
+
+    try {
+        await DB.open();
+    } catch (e) {
+        console.error('Failed to open DB:', e);
+    }
+
+    try {
+        if (typeof TREE !== 'undefined' && TREE.loadNodes) await TREE.loadNodes();
+
+        const last = (function(){ try { return localStorage.getItem('lastBoardId'); } catch (_) { return null; }})();
+        if (last && typeof getNode === 'function') {
+            const node = getNode(last);
+            if (node && typeof TREE.openBoardUI === 'function') {
+                await IMAGES.loadBoard(node.id).catch(()=>{});
+                TREE.openBoardUI(node);
+            }
+        }
+
+        if (typeof CANVAS !== 'undefined' && CANVAS.apply) CANVAS.apply();
+        if (typeof BACKUP !== 'undefined' && BACKUP.requestPersistence) BACKUP.requestPersistence();
+    } catch (e) {
+        console.error('Boot sequence error:', e);
+    }
+})();
+
+// Prevent accidental reload/navigate when a board is open
+window.addEventListener('beforeunload', (e) => {
+    try {
+        if (typeof STATE !== 'undefined' && STATE.currentBoardId) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    } catch (_) {}
+});

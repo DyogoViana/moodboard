@@ -1,0 +1,13 @@
+{
+  "appVersion": "v1.2",
+  "diagnosticsVersion": "1.2",
+  "dbVersion": 2,
+  "generatedAt": "2026-08-20T00:41:47.775Z",
+  "results": [
+    {
+      "code": "MB-061",
+      "level": "warning",
+      "message": "Ainda não existe uma exportação contínua confirmada."
+    }
+  ]
+}

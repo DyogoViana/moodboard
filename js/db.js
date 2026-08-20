@@ -58,7 +58,10 @@ const DB = (() => {
   function put(store, value) {
     return withOpen(() => new Promise((resolve, reject) => {
       const r = tx(store, 'readwrite').put(value);
-      r.onsuccess = () => resolve(value);
+      r.onsuccess = () => {
+        if (typeof window.scheduleExportHook === 'function') window.scheduleExportHook();
+        resolve(value);
+      };
       r.onerror = () => reject(r.error);
     }));
   }
@@ -88,5 +91,17 @@ const DB = (() => {
     }));
   }
 
-  return { open, put, del, getAll, getByIndex };
+  async function probe() {
+    const id = 'diagnostic-probe';
+    await withOpen(() => new Promise((resolve, reject) => {
+      const r = tx('palette', 'readwrite').put({ id, hex: '#000000', createdAt: Date.now() });
+      r.onsuccess = resolve;
+      r.onerror = () => reject(r.error);
+    }));
+    const records = await getAll('palette');
+    await del('palette', id);
+    return records.some(record => record.id === id);
+  }
+
+  return { open, put, del, getAll, getByIndex, probe };
 })();

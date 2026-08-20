@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#B0402E">
 <title>Moodboard Studio</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=1.3.1">
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="theme-dark">
@@ -70,7 +70,7 @@
       </div>
     </aside>
 
-    <button id="btn-collapse-sidebar" class="collapse-tab" title="Recolher menu">‹</button>
+    <button id="btn-collapse-sidebar" class="collapse-tab" title="Recolher menu" aria-label="Recolher menu"></button>
 
     <!-- ============ WORKSPACE ============ -->
     <main id="workspace">
@@ -82,6 +82,7 @@
 
         <div class="toolbar-group toolbar-tools hidden" id="tools-container">
           <button class="btn-tool btn-tool-primary" id="btn-save" data-icon="save" title="Salvar board (Ctrl+S)">Salvar</button>
+          <span id="save-status" class="save-status" aria-live="polite">não exportado</span>
 
           <span class="divider"></span>
 
@@ -97,6 +98,7 @@
           <span class="divider"></span>
 
           <button class="btn-tool" id="btn-export-image" data-icon="image" title="Exportar este board como PNG" onclick="window.exportBoard()">Exportar board</button>
+          <button class="btn-tool" id="btn-organize-grid" data-icon="align" title="Organizar imagens em grade">Organizar em grade</button>
 
           <span class="divider"></span>
 
@@ -150,18 +152,18 @@
     </main>
   </div>
 
-  <script src="js/icons.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/canvas.js"></script>
-  <script src="js/images.js"></script>
-  <script src="js/tree.js"></script>
-  <script src="js/trash.js"></script>
-  <script src="js/color.js"></script>
-  <script src="js/backup.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/diagnostics.js"></script>
+  <script src="js/icons.js?v=1.3.1"></script>
+  <script src="js/db.js?v=1.3.1"></script>
+  <script src="js/state.js?v=1.3.1"></script>
+  <script src="js/theme.js?v=1.3.1"></script>
+  <script src="js/canvas.js?v=1.3.1"></script>
+  <script src="js/images.js?v=1.3.1"></script>
+  <script src="js/tree.js?v=1.3.1"></script>
+  <script src="js/trash.js?v=1.3.1"></script>
+  <script src="js/color.js?v=1.3.1"></script>
+  <script src="js/backup.js?v=1.3.1"></script>
+  <script src="js/app.js?v=1.3.1"></script>
+  <script src="js/diagnostics.js?v=1.3.1"></script>
 
   <div id="import-modal" class="modal hidden" aria-hidden="true">
     <div class="modal-content">
